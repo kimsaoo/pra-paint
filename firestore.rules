@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// 익명 인증을 포함해 "로그인된 사용자"만 읽기/쓰기 가능.
+// 개인용 앱이라 세밀한 사용자별 권한 분리는 하지 않았습니다.
+// Firebase 콘솔 > Firestore Database > 규칙 탭에 이 내용을 붙여넣고 게시하세요.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

@@ -1,0 +1,1283 @@
+[
+  {
+    "code_raw": "LP-2",
+    "color_name": "White",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.842(Glossy White), AK11001(White - Intense)",
+    "vallejo_similar": "70.951 White",
+    "mig_similar": "MIG-0050 White",
+    "ak_similar": "AK 11001 White",
+    "code1_norm": "LP-2",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-3",
+    "color_name": "Flat black",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "McLaren Senna"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "LP-3",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-5 (TS-29)",
+    "color_name": "Semi-gloss black",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "LP-5",
+    "code2_norm": "TS-29",
+    "tamiya_owned": true,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-7 (TS-86)",
+    "color_name": "Pure red",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.957 Flat Red",
+    "mig_similar": "MIG-0049 Red",
+    "ak_similar": "AK 11084 Red",
+    "code1_norm": "LP-7",
+    "code2_norm": "TS-86",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-8",
+    "color_name": "Pure yellow",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.977(Desert Yellow), AK11362(British Sand Yellow (현용 영국사막전차색))",
+    "vallejo_similar": "70.953 Yellow",
+    "mig_similar": "MIG-0048 Yellow",
+    "ak_similar": "AK 11050 Yellow",
+    "code1_norm": "LP-8",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": true,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-11 (TS-30)",
+    "color_name": "Silver (Silver leaf)",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "LP-11",
+    "code2_norm": "TS-30",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-19 (TS-38)",
+    "color_name": "Gun metal",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.863 Gunmetal",
+    "mig_similar": "MIG-0045 Gun Metal",
+    "ak_similar": "AK11212 Gun Metal - Metallic",
+    "code1_norm": "LP-19",
+    "code2_norm": "TS-38",
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-20 (TS-42)",
+    "color_name": "Light gun metal",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "McLaren Senna"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.864 Natural Steel",
+    "mig_similar": "MIG-0020 Steel",
+    "ak_similar": "AK 11193 Steel",
+    "code1_norm": "LP-20",
+    "code2_norm": "TS-42",
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-38",
+    "color_name": "Flat aluminum",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "LP-38",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-40",
+    "color_name": "Metallic black",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.861(Glossy Black), 70.950(Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "LP-40",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-41",
+    "color_name": "Mica blue",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.904(Dark Blue Grey), MIG-0069(Blue Green)",
+    "vallejo_similar": "70.925 Blue",
+    "mig_similar": null,
+    "ak_similar": "AK 11088 Blue",
+    "code1_norm": "LP-41",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-42",
+    "color_name": "Mica red",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.947 Dark Vermilion",
+    "mig_similar": "MIG-0089 Red",
+    "ak_similar": "AK 11084 Deep Red",
+    "code1_norm": "LP-42",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-44",
+    "color_name": "Metallic orange",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.981(Orange Brown)",
+    "vallejo_similar": "70.911 Orange",
+    "mig_similar": null,
+    "ak_similar": "AK 11075 Orange",
+    "code1_norm": "LP-44",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-45",
+    "color_name": "Racing blue",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.904(Dark Blue Grey), MIG-0069(Blue Green)",
+    "vallejo_similar": "70.841 Andrea Blue",
+    "mig_similar": "MIG-0086 Blue",
+    "ak_similar": "AK 11088 Blue",
+    "code1_norm": "LP-45",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-48",
+    "color_name": "Sparkling silver",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "LP-48",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-52 (TS-74)",
+    "color_name": "Clear red",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "McLaren Senna"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.934 Clear Red",
+    "mig_similar": "MIG-0093 Crystal Red",
+    "ak_similar": "AK11213 Clear Red",
+    "code1_norm": "LP-52",
+    "code2_norm": "TS-74",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-53 (TS-73)",
+    "color_name": "Clear orange",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.981(Orange Brown)",
+    "vallejo_similar": "70.935 Clear Orange",
+    "mig_similar": "MIG-0097 Crystal Orange",
+    "ak_similar": "AK11218 Clear Orange",
+    "code1_norm": "LP-53",
+    "code2_norm": "TS-73",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-60",
+    "color_name": "Nato black",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11360(NATO Black), AK11029(Black - Intense)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "LP-60",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-61",
+    "color_name": "Metallic gray",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": "70.990 Light Grey",
+    "mig_similar": "MIG-0057 Grey",
+    "ak_similar": "AK 11155 Medium Grey",
+    "code1_norm": "LP-61",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-62 (TS-87)",
+    "color_name": "Titanium gold",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "McLaren Senna"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": "70.996 Gold",
+    "mig_similar": "MIG-0004 Gold",
+    "ak_similar": "AK 11191 Gold",
+    "code1_norm": "LP-62",
+    "code2_norm": "TS-87",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-63 (TS-88)",
+    "color_name": "Titanium silver",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "McLaren Senna"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "LP-63",
+    "code2_norm": "TS-88",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-67 (TS-71)",
+    "color_name": "Smoke",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "McLaren Senna"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.939 Smoke",
+    "mig_similar": "MIG-0095 Crystal Smoke",
+    "ak_similar": "AK11215 Clear Smoke",
+    "code1_norm": "LP-67",
+    "code2_norm": "TS-71",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-70 (TS-17)",
+    "color_name": "Gloss aluminum",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "LP-70",
+    "code2_norm": "TS-17",
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-71",
+    "color_name": "Champagne gold",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": "70.996 Gold",
+    "mig_similar": "MIG-0004 Gold",
+    "ak_similar": "AK 11191 Gold",
+    "code1_norm": "LP-71",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-72 (TS-76)",
+    "color_name": "Mica silver",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "LP-72",
+    "code2_norm": "TS-76",
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "LP-74",
+    "color_name": "Flat earth",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.983(Flat Earth)",
+    "vallejo_similar": "70.984 Flat Brown",
+    "mig_similar": "MIG-0037 Flat Brown",
+    "ak_similar": "AK 11110 Flat Brown",
+    "code1_norm": "LP-74",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-75",
+    "color_name": "Buff",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.976N(Buff)",
+    "vallejo_similar": "70.976 Buff",
+    "mig_similar": "MIG-0035 Buff",
+    "ak_similar": "AK 11123 Buff",
+    "code1_norm": "LP-75",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "LP-79",
+    "color_name": "Flat red",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.957 Flat Red",
+    "mig_similar": "MIG-0049 Red",
+    "ak_similar": "AK 11084 Red",
+    "code1_norm": "LP-79",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "TS-14 (LP-1)",
+    "color_name": "Black",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "McLaren Senna"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "TS-14",
+    "code2_norm": "LP-1",
+    "tamiya_owned": true,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "TS-19",
+    "color_name": "Metallic blue",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.904(Dark Blue Grey), MIG-0069(Blue Green)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "TS-19",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "TS-21",
+    "color_name": "Gold",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "TS-21",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "TS-34",
+    "color_name": "Camel yellow",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.913(Yellow Ochre), MIG-0048(Yellow), AK11362(British Sand Yellow (현용 영국사막전차색))",
+    "vallejo_similar": "70.916 Sand Yellow",
+    "mig_similar": "MIG-0052 Yellow",
+    "ak_similar": "AK 11048 Yellow",
+    "code1_norm": "TS-34",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "TS-100",
+    "color_name": "Semi-Gloss Bright Gun Metal",
+    "kits_needed": [
+      "Mercedes-AMG GT3"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "TS-100",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-1",
+    "color_name": "Black",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 4,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "X-1",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-2",
+    "color_name": "White",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.842(Glossy White), AK11001(White - Intense)",
+    "vallejo_similar": "70.951 White",
+    "mig_similar": "MIG-0050 White",
+    "ak_similar": "AK 11001 White",
+    "code1_norm": "X-2",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-6",
+    "color_name": "Orange",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.981(Orange Brown)",
+    "vallejo_similar": "70.911 Orange",
+    "mig_similar": null,
+    "ak_similar": "AK 11075 Orange",
+    "code1_norm": "X-6",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-7",
+    "color_name": "Red",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 4,
+    "owned_status": "미보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.947 Dark Vermilion",
+    "mig_similar": "MIG-0089 Red",
+    "ak_similar": "AK 11084 Deep Red",
+    "code1_norm": "X-7",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-8",
+    "color_name": "Lemon yellow",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.913(Yellow Ochre), AK11362(British Sand Yellow (현용 영국사막전차색))",
+    "vallejo_similar": "70.953 Yellow",
+    "mig_similar": "MIG-0048 Yellow",
+    "ak_similar": "AK 11050 Yellow",
+    "code1_norm": "X-8",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": true,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-10",
+    "color_name": "Gun metal",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 4,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.863 Gunmetal",
+    "mig_similar": "MIG-0045 Gun Metal",
+    "ak_similar": "AK11212 Gun Metal - Metallic",
+    "code1_norm": "X-10",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "X-11",
+    "color_name": "Chrome silver",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 5,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "X-11",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "X-12",
+    "color_name": "Gold leaf",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": "70.996 Gold",
+    "mig_similar": "MIG-0004 Gold",
+    "ak_similar": "AK 11191 Gold",
+    "code1_norm": "X-12",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-13",
+    "color_name": "Metallic blue",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Mercedes-AMG GT3",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.904(Dark Blue Grey), MIG-0069(Blue Green)",
+    "vallejo_similar": "70.925 Blue",
+    "mig_similar": "MIG-0055 Dark Blue",
+    "ak_similar": "AK 11086 Dark Blue",
+    "code1_norm": "X-13",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-14",
+    "color_name": "Sky blue",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": "* 유사색: MIG-0069(Blue Green)",
+    "vallejo_similar": "70.961 Sky Blue",
+    "mig_similar": "MIG-0086 Blue",
+    "ak_similar": "AK 11088 Medium Blue",
+    "code1_norm": "X-14",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-16",
+    "color_name": "Purple",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": "70.959 Purple",
+    "mig_similar": "MIG-0054 Purple",
+    "ak_similar": "AK 11095 Purple",
+    "code1_norm": "X-16",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-18",
+    "color_name": "Semi-gloss black",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 5,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "X-18",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-23",
+    "color_name": "Clear blue",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.904(Dark Blue Grey), MIG-0069(Blue Green)",
+    "vallejo_similar": "70.938 Clear Blue",
+    "mig_similar": "MIG-0098 Crystal Light Blue",
+    "ak_similar": "AK11214 Clear Blue",
+    "code1_norm": "X-23",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-24",
+    "color_name": "Clear yellow",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.977(Desert Yellow), MIG-0048(Yellow), AK11362(British Sand Yellow (현용 영국사막전차색))",
+    "vallejo_similar": "70.937 Clear Yellow",
+    "mig_similar": null,
+    "ak_similar": "AK11217 Clear Yellow",
+    "code1_norm": "X-24",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-26",
+    "color_name": "Clear orange",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.981(Orange Brown)",
+    "vallejo_similar": "70.935 Clear Orange",
+    "mig_similar": "MIG-0097 Crystal Orange",
+    "ak_similar": "AK11218 Clear Orange",
+    "code1_norm": "X-26",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-27",
+    "color_name": "Clear red",
+    "kits_needed": [
+      "Ducati Superleggera V4",
+      "Mercedes-AMG GT3",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 3,
+    "owned_status": "보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.934 Clear Red",
+    "mig_similar": "MIG-0093 Crystal Red",
+    "ak_similar": "AK11213 Clear Red",
+    "code1_norm": "X-27",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-28",
+    "color_name": "Park green",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.890(Reflective Green), MIG-0084(Nato Green), AK11147(Olive Green)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "X-28",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-31",
+    "color_name": "Titanium gold",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Mercedes-AMG GT3"
+    ],
+    "kit_count": 3,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": "70.996 Gold",
+    "mig_similar": "MIG-0004 Gold",
+    "ak_similar": "AK 11191 Gold",
+    "code1_norm": "X-31",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-32",
+    "color_name": "Titanium silver",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "X-32",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "X-33",
+    "color_name": "Bronze",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "X-33",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "X-34",
+    "color_name": "Metallic brown",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.984(Flat Brown), MIG-0070(Medium Brown), MIG-0085(Nato Brown), AK11434(Red Brown)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "X-34",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-1",
+    "color_name": "Flat black",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 5,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense), AK11360(NATO Black)",
+    "vallejo_similar": "70.950 Black",
+    "mig_similar": "MIG-0046 Matt Black",
+    "ak_similar": "AK 11029 Black",
+    "code1_norm": "XF-1",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-2",
+    "color_name": "Flat white",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": "* 유사색: 70.842(Glossy White), AK11001(White - Intense)",
+    "vallejo_similar": "70.951 White",
+    "mig_similar": "MIG-0050 White",
+    "ak_similar": "AK 11001 White",
+    "code1_norm": "XF-2",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": true,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-7",
+    "color_name": "Flat red",
+    "kits_needed": [
+      "Mercedes-AMG GT3",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "보유",
+    "note": "* 유사색: MIG-0133(Red Leather), AK11097(Burnt Red)",
+    "vallejo_similar": "70.957 Flat Red",
+    "mig_similar": "MIG-0049 Red",
+    "ak_similar": "AK 11084 Red",
+    "code1_norm": "XF-7",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-16",
+    "color_name": "Flat aluminum",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Ducati Superleggera V4",
+      "Mercedes-AMG GT3",
+      "McLaren Senna",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 5,
+    "owned_status": "보유",
+    "note": null,
+    "vallejo_similar": "70.997 Silver",
+    "mig_similar": "MIG-0019 Silver",
+    "ak_similar": "AK11209 Silver - Metallic",
+    "code1_norm": "XF-16",
+    "code2_norm": null,
+    "tamiya_owned": true,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": true
+  },
+  {
+    "code_raw": "XF-53",
+    "color_name": "Neutral grey",
+    "kits_needed": [
+      "Mercedes-AMG GT3"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.992(Neutral Grey), MIG-0063(Pale Grey)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "XF-53",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-56",
+    "color_name": "Metallic grey",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.830(German Field Grey WWII), MIG-0063(Pale Grey)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "XF-56",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-63",
+    "color_name": "German grey",
+    "kits_needed": [
+      "McLaren Senna"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.830(German Field Grey WWII), MIG-0063(Pale Grey)",
+    "vallejo_similar": "70.995 German Grey",
+    "mig_similar": "MIG-0057 Grey",
+    "ak_similar": "AK 11155 Medium Grey",
+    "code1_norm": "XF-63",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-64",
+    "color_name": "Red brown",
+    "kits_needed": [
+      "Ducati Superleggera V4"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.825(German Camouflage Light Brown), MIG-0134(Burnt Brown Red), AK11434(Red Brown)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "XF-64",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-84",
+    "color_name": "Dark iron",
+    "kits_needed": [
+      "Suzuki GSX-RR '20"
+    ],
+    "kit_count": 1,
+    "owned_status": "미보유",
+    "note": null,
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "XF-84",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  },
+  {
+    "code_raw": "XF-85",
+    "color_name": "Rubber black",
+    "kits_needed": [
+      "Suzuki GSX-RR '20",
+      "Kawasaki Ninja H2 CARBON"
+    ],
+    "kit_count": 2,
+    "owned_status": "미보유",
+    "note": "* 유사색: 70.861(Glossy Black), AK11029(Black - Intense)",
+    "vallejo_similar": null,
+    "mig_similar": null,
+    "ak_similar": null,
+    "code1_norm": "XF-85",
+    "code2_norm": null,
+    "tamiya_owned": false,
+    "vallejo_owned": false,
+    "mig_owned": false,
+    "ak_owned": false
+  }
+]
