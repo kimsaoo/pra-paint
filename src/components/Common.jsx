@@ -1,10 +1,11 @@
-import { brandLabel, brandVar } from '../lib/constants';
+import { useState } from 'react';
+import { brandColorVar } from '../lib/constants';
 
-export function BrandChip({ brand, children }) {
+export function BrandChip({ manufacturer, children }) {
   return (
     <span className="brand-chip">
-      <span className="brand-dot" style={{ background: `var(${brandVar(brand)})` }} />
-      {children || brandLabel(brand)}
+      <span className="brand-dot" style={{ background: brandColorVar(manufacturer) }} />
+      {children || manufacturer}
     </span>
   );
 }
@@ -17,11 +18,58 @@ export function OwnedBadge({ owned }) {
   );
 }
 
-export function PaintCap({ brand, size = 'sm' }) {
+export function PaintCap({ manufacturer, size = 'sm' }) {
   const cls = size === 'lg' ? 'paint-cap-lg' : 'paint-cap';
-  return <span className={cls} style={{ background: `var(${brandVar(brand)})` }} />;
+  return <span className={cls} style={{ background: brandColorVar(manufacturer) }} />;
 }
 
 export function Spinner() {
   return <div className="spinner" />;
+}
+
+/** 위시리스트에 담기/빼기 토글 버튼 (장바구니 방식) */
+export function WishlistToggle({ paint, onToggle }) {
+  const wishlisted = !!paint.wishlisted;
+  return (
+    <button
+      className={`btn sm ${wishlisted ? 'primary' : ''}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle(paint, !wishlisted);
+      }}
+      title={wishlisted ? '위시리스트에서 빼기' : '위시리스트에 담기'}
+    >
+      {wishlisted ? '🛒 담김' : '🛒 담기'}
+    </button>
+  );
+}
+
+/** 유사도료 아이콘 + 호버 툴팁. 모바일에선 탭하면 토글되도록 처리 */
+export function SimilarTooltip({ similarPaints }) {
+  const [tapped, setTapped] = useState(false);
+  if (!similarPaints || similarPaints.length === 0) return null;
+
+  return (
+    <span
+      className={`similar-tooltip ${tapped ? 'tapped' : ''}`}
+      tabIndex={0}
+      onClick={(e) => {
+        e.stopPropagation();
+        setTapped((v) => !v);
+      }}
+    >
+      <span className="tooltip-icon">≈ {similarPaints.length}</span>
+      <span className="tooltip-panel">
+        <div className="tooltip-title">유사도료</div>
+        {similarPaints.map((s) => (
+          <div className="tooltip-row" key={s.id}>
+            <span>
+              {s.manufacturer} {s.code} {s.name}
+            </span>
+            <span style={{ color: s.owned ? 'var(--owned)' : 'var(--missing)' }}>{s.owned ? '●' : '○'}</span>
+          </div>
+        ))}
+      </span>
+    </span>
+  );
 }

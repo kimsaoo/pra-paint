@@ -1,101 +1,226 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { KIT_MANUFACTURERS, PRODUCT_TYPES } from '../lib/constants';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
+import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle } from './Common';
+import PaintEditModal from './PaintEditModal';
+import { getSimilarPaints } from '../lib/matching';
 
-export default function KitManager({ kits, tamiyaMaster }) {
-  const [newName, setNewName] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
+const emptyKitForm = { name: '', manufacturer: '', productType: '' };
 
-  async function add() {
-    if (!newName.trim()) return;
-    await addItem('kits', { name: newName.trim(), order: kits.length });
-    setNewName('');
+export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
+  const [editingKit, setEditingKit] = useState(null); // null | 'new' | kit
+  const [kitForm, setKitForm] = useState(emptyKitForm);
+  const [expandedKitId, setExpandedKitId] = useState(null);
+  const [addMode, setAddMode] = useState(null); // null | 'search' | 'new'
+  const [searchQuery, setSearchQuery] = useState('');
+
+  function openNewKit() {
+    setKitForm(emptyKitForm);
+    setEditingKit('new');
   }
-
-  function startEdit(kit) {
-    setEditingId(kit.id);
-    setEditName(kit.name);
+  function openEditKit(kit) {
+    setKitForm({ name: kit.name, manufacturer: kit.manufacturer || '', productType: kit.productType || '' });
+    setEditingKit(kit);
   }
-
-  async function saveEdit() {
-    if (!editName.trim()) return;
-    await updateItem('kits', editingId, { name: editName.trim() });
-    setEditingId(null);
+  async function saveKit() {
+    if (!kitForm.name.trim() || !kitForm.manufacturer || !kitForm.productType) return;
+    if (editingKit === 'new') {
+      await addItem('kits', { ...kitForm, name: kitForm.name.trim(), order: kits.length });
+    } else {
+      await updateItem('kits', editingKit.id, kitForm);
+    }
+    setEditingKit(null);
   }
-
-  async function remove(kit) {
-    const usedCount = tamiyaMaster.filter((t) => t.kitsNeeded?.includes(kit.id)).length;
-    const msg =
-      usedCount > 0
-        ? `"${kit.name}"은 ${usedCount}개 도료에서 사용 중입니다. 삭제하면 해당 연결이 사라집니다. 계속할까요?`
-        : `"${kit.name}"을 삭제할까요?`;
-    if (!confirm(msg)) return;
+  async function removeKit(kit) {
+    const linked = kitPaintLinks.filter((l) => l.kitId === kit.id);
+    if (!confirm(`"${kit.name}"을 삭제할까요? 연결된 도료 요구사항 ${linked.length}건도 함께 삭제됩니다.`)) return;
+    for (const l of linked) await deleteItem('kitPaintLinks', l.id);
     await deleteItem('kits', kit.id);
+    setEditingKit(null);
+  }
+
+  function linksForKit(kitId) {
+    return kitPaintLinks.filter((l) => l.kitId === kitId);
+  }
+
+  const searchCandidates = useMemo(() => {
+    if (!searchQuery.trim() || !expandedKitId) return [];
+    const q = searchQuery.trim().toLowerCase();
+    const linkedPaintIds = new Set(linksForKit(expandedKitId).map((l) => l.paintId));
+    return paints
+      .filter((p) => !linkedPaintIds.has(p.id))
+      .filter((p) => p.code.toLowerCase().includes(q) || p.name.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [searchQuery, paints, kitPaintLinks, expandedKitId]);
+
+  async function attachPaint(kitId, paintId) {
+    await addItem('kitPaintLinks', { kitId, paintId, source: 'manual' });
+    setSearchQuery('');
+    setAddMode(null);
+  }
+
+  async function detachLink(link) {
+    await deleteItem('kitPaintLinks', link.id);
+  }
+
+  function handleNewPaintSaved(kitId, savedPaint) {
+    if (savedPaint) attachPaint(kitId, savedPaint.id);
+    setAddMode(null);
   }
 
   const sortedKits = [...kits].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   return (
     <div>
-      <div className="section-title">🏍️ 키트 관리 ({kits.length})</div>
-      <p className="text-faint" style={{ marginBottom: 14 }}>
-        키트를 추가/수정/삭제하면 도료 DB의 "필요 킷" 체크박스에 바로 반영됩니다.
-      </p>
-
-      <div className="card">
-        <div className="field-group" style={{ marginBottom: 0 }}>
-          <label>새 킷 추가</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="예: Honda RC213V'24"
-              onKeyDown={(e) => e.key === 'Enter' && add()}
-            />
-            <button className="btn primary" onClick={add}>
-              추가
-            </button>
-          </div>
-        </div>
+      <div className="flex-between">
+        <div className="section-title">🏍️ 킷 관리 ({kits.length})</div>
+        <button className="btn primary sm" onClick={openNewKit}>
+          + 킷 추가
+        </button>
       </div>
 
       {sortedKits.map((kit) => {
-        const usedCount = tamiyaMaster.filter((t) => t.kitsNeeded?.includes(kit.id)).length;
+        const links = linksForKit(kit.id);
+        const isExpanded = expandedKitId === kit.id;
         return (
-          <div className="paint-row" key={kit.id}>
-            {editingId === kit.id ? (
-              <>
-                <input
-                  style={{ flex: 1 }}
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
-                  autoFocus
-                />
-                <button className="btn sm primary" onClick={saveEdit}>
-                  저장
-                </button>
-                <button className="btn sm" onClick={() => setEditingId(null)}>
-                  취소
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="paint-info">
-                  <div className="paint-code">{kit.name}</div>
-                  <div className="paint-kits">도료 {usedCount}개 연결됨</div>
+          <div className="card" key={kit.id}>
+            <div className="flex-between" onClick={() => setExpandedKitId(isExpanded ? null : kit.id)} style={{ cursor: 'pointer' }}>
+              <div>
+                <div className="code-text" style={{ fontSize: 14 }}>
+                  {kit.name}
                 </div>
-                <button className="icon-btn" onClick={() => startEdit(kit)}>
+                <div className="text-faint mt-4">
+                  {kit.manufacturer} · {kit.productType} · 도료 {links.length}개
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); openEditKit(kit); }}>
                   ✏️
                 </button>
-                <button className="icon-btn" onClick={() => remove(kit)}>
-                  🗑️
-                </button>
-              </>
+                <span className="icon-btn">{isExpanded ? '▲' : '▼'}</span>
+              </div>
+            </div>
+
+            {isExpanded && (
+              <div className="mt-8">
+                {links.length === 0 && <div className="text-faint mt-4">아직 등록된 도료가 없습니다</div>}
+                {links.map((link) => {
+                  const p = byId.get(link.paintId);
+                  if (!p) return null;
+                  const similar = getSimilarPaints(p, byId);
+                  return (
+                    <div className="flex-between mt-4" key={link.id}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <PaintCap manufacturer={p.manufacturer} />
+                        <span className="code-text">{p.code}</span>
+                        <span className="text-dim">{p.name}</span>
+                        <OwnedBadge owned={p.owned} />
+                        <SimilarTooltip similarPaints={similar} />
+                        {!p.owned && (
+                          <WishlistToggle paint={p} onToggle={(paint, v) => updateItem('paints', paint.id, { wishlisted: v })} />
+                        )}
+                      </div>
+                      <button className="icon-btn" onClick={() => detachLink(link)}>
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {addMode === 'search' && (
+                  <div className="mt-8">
+                    <input
+                      placeholder="코드/이름으로 검색"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                    />
+                    {searchCandidates.map((c) => (
+                      <div className="flex-between mt-4" key={c.id}>
+                        <BrandChip manufacturer={c.manufacturer}>
+                          {c.code} {c.name}
+                        </BrandChip>
+                        <button className="btn sm primary" onClick={() => attachPaint(kit.id, c.id)}>
+                          연결
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {addMode === 'new' && (
+                  <PaintEditModal
+                    paint={null}
+                    allPaints={paints}
+                    byId={byId}
+                    onClose={(saved) => handleNewPaintSaved(kit.id, saved)}
+                  />
+                )}
+
+                {!addMode && (
+                  <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                    <button className="btn sm" onClick={() => setAddMode('search')}>
+                      기존 도료 연결
+                    </button>
+                    <button className="btn sm" onClick={() => setAddMode('new')}>
+                      새 도료 만들기
+                    </button>
+                    {/* 이미지 인식으로 도료 등록하는 기능은 아직 미구현 — 별도 작업으로 진행 예정.
+                        관련 논의는 README "아직 없는 기능" 섹션 참고. */}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         );
       })}
+
+      {editingKit && (
+        <div className="modal-overlay" onClick={() => setEditingKit(null)}>
+          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-title">{editingKit === 'new' ? '킷 추가' : '킷 수정'}</div>
+            <div className="field-group">
+              <label>제조사 *</label>
+              <select value={kitForm.manufacturer} onChange={(e) => setKitForm({ ...kitForm, manufacturer: e.target.value })}>
+                <option value="">선택</option>
+                {KIT_MANUFACTURERS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field-group">
+              <label>제품 타입 *</label>
+              <select value={kitForm.productType} onChange={(e) => setKitForm({ ...kitForm, productType: e.target.value })}>
+                <option value="">선택</option>
+                {PRODUCT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field-group">
+              <label>제품명 *</label>
+              <input value={kitForm.name} onChange={(e) => setKitForm({ ...kitForm, name: e.target.value })} />
+            </div>
+            <div className="modal-actions">
+              {editingKit !== 'new' && (
+                <button className="btn danger" onClick={() => removeKit(editingKit)}>
+                  삭제
+                </button>
+              )}
+              <button className="btn" onClick={() => setEditingKit(null)}>
+                취소
+              </button>
+              <button className="btn primary" onClick={saveKit}>
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

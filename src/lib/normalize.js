@@ -78,3 +78,47 @@ export function codeEquals(a, b) {
   const clean = (s) => String(s).toUpperCase().replace(/\s+/g, '');
   return clean(a) === clean(b);
 }
+
+/**
+ * 범용 "코드 이름 (비고)" 분리기. 첫 공백 앞을 코드로, 괄호는 모두 비고로 뽑아냄.
+ * 예: "X-09 Brown (유광)" → { code: "X-09", name: "Brown", note: "유광" }
+ */
+export function splitCodeNameNote(text) {
+  if (!text) return { code: '', name: '', note: '' };
+  const trimmed = String(text).trim();
+  const firstSpace = trimmed.indexOf(' ');
+  if (firstSpace === -1) return { code: trimmed, name: '', note: '' };
+  const code = trimmed.slice(0, firstSpace);
+  let rest = trimmed.slice(firstSpace + 1).trim();
+  const notes = [];
+  rest = rest
+    .replace(/\(([^)]*)\)/g, (_, inner) => {
+      notes.push(inner.trim());
+      return '';
+    })
+    .replace(/\s+/g, ' ')
+    .trim();
+  return { code, name: rest, note: notes.join(', ') };
+}
+
+/** "Testors TE-1144 Gold" 처럼 제조사명이 코드 앞에 붙은 케이스 전용 파서 */
+export function parseTestorItaleri(text) {
+  let manufacturer = '기타';
+  let rest = String(text).trim();
+  if (/^testors?/i.test(rest)) {
+    manufacturer = 'Testor';
+    rest = rest.replace(/^testors?\s*/i, '');
+  } else if (/^italeri/i.test(rest)) {
+    manufacturer = 'Italeri';
+    rest = rest.replace(/^italeri\s*/i, '');
+  }
+  return { manufacturer, ...splitCodeNameNote(rest) };
+}
+
+/** 타미야 코드 접두사로 도료 타입 추정 (LP=락커(병), TS=락커스프레이, X/XF=에나멜) */
+export function guessTamiyaPaintType(code) {
+  if (/^LP-/i.test(code)) return '락커(병)';
+  if (/^TS-/i.test(code)) return '락커스프레이';
+  if (/^X-|^XF-/i.test(code)) return '에나멜';
+  return '기타';
+}

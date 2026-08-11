@@ -1,59 +1,76 @@
 import { useMemo } from 'react';
-import { computeItemMatch } from '../lib/matching';
-import { BrandChip, PaintCap } from './Common';
+import { getSimilarPaints } from '../lib/matching';
+import { updateItem } from '../lib/useCollection';
+import { BrandChip, OwnedBadge, PaintCap } from './Common';
 
-export default function Wishlist({ tamiyaMaster, ownedOtherBrand, ownedAcrylic, kits }) {
-  const missing = useMemo(() => {
-    return tamiyaMaster
-      .map((item) => ({ item, match: computeItemMatch(item, ownedOtherBrand, ownedAcrylic) }))
-      .filter(({ match }) => match.ownedStatus === '미보유')
-      .sort((a, b) => (b.item.kitsNeeded?.length || 0) - (a.item.kitsNeeded?.length || 0));
-  }, [tamiyaMaster, ownedOtherBrand, ownedAcrylic]);
+export default function Wishlist({ paints, kitPaintLinks, kits, byId }) {
+  const items = useMemo(() => paints.filter((p) => p.wishlisted), [paints]);
+
+  function kitNamesFor(paintId) {
+    return kitPaintLinks
+      .filter((l) => l.paintId === paintId)
+      .map((l) => kits.find((k) => k.id === l.kitId)?.name)
+      .filter(Boolean);
+  }
+
+  async function remove(paint) {
+    await updateItem('paints', paint.id, { wishlisted: false });
+  }
 
   return (
     <div>
-      <div className="section-title">🛒 위시리스트 ({missing.length})</div>
+      <div className="section-title">🛒 위시리스트 ({items.length})</div>
       <p className="text-faint" style={{ marginBottom: 14 }}>
-        미보유 도료와, 살 때 참고할 브랜드별 유사색 후보입니다.
+        "전체도료"나 "킷" 화면에서 🛒 담기 버튼을 누르면 여기 모입니다. 산 도료는 빼주세요.
       </p>
 
-      {missing.length === 0 && (
+      {items.length === 0 && (
         <div className="empty-state">
-          <div className="icon">🎉</div>
-          모든 필요 도료를 보유하고 있습니다
+          <div className="icon">🛒</div>
+          아직 담은 도료가 없습니다
+          <div className="text-faint mt-8">"전체도료" 화면에서 도료를 열어 담아보세요</div>
         </div>
       )}
 
-      {missing.map(({ item, match }) => (
-        <div className="card" key={item.id}>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <PaintCap brand="tamiya" size="lg" />
-            <div style={{ flex: 1 }}>
-              <div>
-                <span className="code-text">{item.code}</span>{' '}
-                <span className="text-dim">{item.colorName}</span>
-              </div>
-              {item.kitsNeeded?.length > 0 && (
-                <div className="text-faint mt-4">
-                  필요 킷: {item.kitsNeeded.map((id) => kits.find((k) => k.id === id)?.name).filter(Boolean).join(', ')}
+      {items.map((paint) => {
+        const kitNames = kitNamesFor(paint.id);
+        const similarOwned = getSimilarPaints(paint, byId).filter((s) => s.owned);
+        return (
+          <div className="card" key={paint.id}>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <PaintCap manufacturer={paint.manufacturer} size="lg" />
+              <div style={{ flex: 1 }}>
+                <div className="flex-between">
+                  <div>
+                    <span className="code-text">{paint.code}</span> <span className="text-dim">{paint.name}</span>
+                  </div>
+                  <OwnedBadge owned={paint.owned} />
                 </div>
-              )}
+                <div className="text-faint mt-4">
+                  {paint.manufacturer} · {paint.paintType}
+                  {kitNames.length > 0 && ` · 필요 킷: ${kitNames.join(', ')}`}
+                </div>
+              </div>
+            </div>
+
+            {similarOwned.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                {similarOwned.map((s) => (
+                  <BrandChip key={s.id} manufacturer={s.manufacturer}>
+                    {s.code} {s.name}
+                  </BrandChip>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-8" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn sm danger" onClick={() => remove(paint)}>
+                위시리스트에서 빼기
+              </button>
             </div>
           </div>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-            {item.vallejoSimilar && <BrandChip brand="vallejo">{item.vallejoSimilar}</BrandChip>}
-            {item.migSimilar && <BrandChip brand="mig">{item.migSimilar}</BrandChip>}
-            {item.akSimilar && <BrandChip brand="ak">{item.akSimilar}</BrandChip>}
-          </div>
-
-          {match.additionalSimilar?.length > 0 && (
-            <div className="mt-8 text-faint">
-              * 추가 후보: {match.additionalSimilar.map((s) => `${s.code}(${s.name})`).join(', ')}
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
