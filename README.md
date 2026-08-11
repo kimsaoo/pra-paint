@@ -84,7 +84,13 @@ Firebase는 구글이 만든 서비스이고, 여기서는 "데이터를 저장�
 
 4. 앱 닉네임 입력 (예: `pra-paint-web`) → Firebase Hosting 체크박스는 **체크 안 해도 됨** →
    **앱 등록(Register app)**
-5. 화면에 나오는 `firebaseConfig` 객체를 확인합니다. 아래처럼 생겼습니다:
+5. **"Firebase SDK 추가(Add Firebase SDK)"** 화면이 나오면 **npm** 탭(또는 "Use npm" 버튼)을
+   선택하세요. (다른 선택지인 `<script>` 태그 방식은 이 프로젝트와 안 맞습니다)
+   - 화면에 나오는 `npm install firebase`, `import { initializeApp }...` 같은 코드는
+     이미 이 프로젝트의 `package.json`과 `src/firebase.js`에 들어있으니 따로 복사하지
+     않아도 됩니다. **"콘솔로 이동(Continue to console)"** 버튼만 눌러 넘어가세요.
+6. 넘어간 화면(또는 방금 등록 과정 중간)에 나오는 `firebaseConfig` 객체를 확인합니다.
+   아래처럼 생겼습니다:
    ```js
    const firebaseConfig = {
      apiKey: "AIzaSy...",
@@ -95,7 +101,7 @@ Firebase는 구글이 만든 서비스이고, 여기서는 "데이터를 저장�
      appId: "1:123456789012:web:abcdef123456"
    };
    ```
-6. 이 6개 값을 압축 파일의 `.env.example`을 복사한 `.env` 파일에 채워 넣습니다.
+7. 이 6개 값을 압축 파일의 `.env.example`을 복사한 `.env` 파일에 채워 넣습니다.
    (`.env.example`을 `.env`로 이름만 바꿔서 값을 채우면 됩니다)
    ```
    VITE_FIREBASE_API_KEY=AIzaSy...
@@ -230,3 +236,50 @@ base: '/실제리포지토리이름/',
 - 화면이 "불러오는 중..."에서 멈춘다 → `.env`(로컬) 또는 GitHub Secrets(배포) 값이 잘못됐을
   가능성이 높습니다. 브라우저 개발자 도구(F12) → Console 탭에서 오류 메시지를 확인해보세요.
 - Firestore 규칙 화면에서 "테스트 모드 만료" 경고가 보이면 1-4의 규칙을 다시 게시해주세요.
+
+### 실제로 겪었던 환경설정 이슈 (2026-08 기준)
+
+**1. `npm run dev` 실행 시 `'vite'은(는) 내부 또는 외부 명령... 아닙니다`**
+- 원인: `npm install`을 먼저 실행하지 않아서 `node_modules` 폴더가 없는 상태
+- 해결: `paint-app` 폴더에서 `npm install` 먼저 실행 → 완료 후 `npm run dev`
+- 확인 방법: `dir`(윈도우)/`ls`(맥)로 `node_modules` 폴더가 생겼는지 확인
+
+**2. `http://localhost:5173` 접속 시 `ERR_CONNECTION_REFUSED`**
+- 원인: 위 1번과 동일 (vite가 아예 안 떠서 서버가 없는 상태)
+- 해결: 위 1번 해결 후, 터미널에 `Local: http://localhost:5173/` 문구가 뜬 걸 확인하고
+  그 다음에 브라우저 접속
+
+**3. `git push` 시 `error: src refspec main does not match any`**
+- 원인 A: `paint-app` 폴더 "안"이 아니라 그 바깥(부모 폴더)에서 `git init`을 실행함
+  → `cd paint-app`으로 들어간 후 다시 `git init`
+- 원인 B: 커밋이 실제로 만들어지지 않은 상태 (아래 5번 오류 때문에 `git commit`이 조용히
+  실패한 경우) → `git log --oneline`으로 커밋이 있는지 먼저 확인
+
+**4. `git remote add origin ...` 시 `error: remote origin already exists`**
+- 원인: 이전 시도에서 이미 origin이 등록되어 있음
+- 해결: `git remote set-url origin <주소>` (덮어쓰기) 또는
+  `git remote remove origin` 후 다시 `git remote add origin <주소>`
+
+**5. `git commit` 시 `Please tell me who you are` / `Author identity unknown`**
+- 원인: 이 컴퓨터에 Git 사용자 이름/이메일이 전역으로 설정된 적이 없음 (Windows에서 특히
+  자주 발생, PC 사용자명이 `kimsa@jkkim-pc.(none)` 같은 임시값으로 잡혀서 커밋이 거부됨)
+- 해결:
+  ```
+  git config --global user.email "본인이메일@example.com"
+  git config --global user.name "본인이름"
+  ```
+  이후 `git commit -m "초기 커밋"` 다시 실행
+
+**정리하면, 처음 세팅할 때 막히지 않으려면 이 순서를 지키는 게 중요합니다:**
+```
+cd paint-app                (반드시 이 폴더 안으로 먼저 이동)
+npm install                 (vite 등 의존성 설치, node_modules 생성 확인)
+git init
+git config --global user.email "..."   (처음 컴퓨터에서 Git 쓰는 경우만)
+git config --global user.name "..."    (처음 컴퓨터에서 Git 쓰는 경우만)
+git add .
+git commit -m "초기 커밋"
+git branch -M main
+git remote add origin https://github.com/계정명/pra-paint.git
+git push -u origin main
+```
