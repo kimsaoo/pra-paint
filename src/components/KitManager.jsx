@@ -3,6 +3,7 @@ import { KIT_MANUFACTURERS, PRODUCT_TYPES } from '../lib/constants';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle } from './Common';
 import PaintEditModal from './PaintEditModal';
+import ImagePaintImport from './ImagePaintImport';
 import { getSimilarPaints } from '../lib/matching';
 
 const emptyKitForm = { name: '', manufacturer: '', productType: '' };
@@ -66,6 +67,13 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
 
   function handleNewPaintSaved(kitId, savedPaint) {
     if (savedPaint) attachPaint(kitId, savedPaint.id);
+    setAddMode(null);
+  }
+
+  async function handleImageImportConfirm(kitId, createdPaints) {
+    for (const p of createdPaints) {
+      await addItem('kitPaintLinks', { kitId, paintId: p.id, source: 'image' });
+    }
     setAddMode(null);
   }
 
@@ -161,6 +169,14 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
                   />
                 )}
 
+                {addMode === 'image' && (
+                  <ImagePaintImport
+                    paints={paints}
+                    onCancel={() => setAddMode(null)}
+                    onConfirm={(created) => handleImageImportConfirm(kit.id, created)}
+                  />
+                )}
+
                 {!addMode && (
                   <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
                     <button className="btn sm" onClick={() => setAddMode('search')}>
@@ -169,8 +185,9 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
                     <button className="btn sm" onClick={() => setAddMode('new')}>
                       새 도료 만들기
                     </button>
-                    {/* 이미지 인식으로 도료 등록하는 기능은 아직 미구현 — 별도 작업으로 진행 예정.
-                        관련 논의는 README "아직 없는 기능" 섹션 참고. */}
+                    <button className="btn sm" onClick={() => setAddMode('image')}>
+                      📷 이미지로 등록
+                    </button>
                   </div>
                 )}
               </div>

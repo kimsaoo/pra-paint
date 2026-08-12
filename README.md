@@ -259,7 +259,43 @@ Firestore 콘솔에서 예전 컬렉션(`tamiyaMaster`, `ownedOtherBrand`, `owne
 
 ---
 
-## 데이터 수정이 필요할 때
+## 4단계. Gemini API 키 발급 (킷 화면의 "이미지로 등록" 기능용)
+
+설명서 도료표 사진을 인식하는 기능은 Google Gemini를 씁니다. 완전 무료(신용카드 등록 불필요)
+지만, 발급/설정을 안 하면 이 기능만 오류가 나고 나머지 기능은 정상 동작합니다.
+
+### 4-1. API 키 발급
+
+1. https://aistudio.google.com/apikey 접속 → 구글 계정으로 로그인
+2. **"Create API key"** 클릭 → 새 프로젝트를 만들라고 하면 그냥 기본값으로 진행
+3. 생성된 키(`AIzaSy...` 형태) 복사
+
+### 4-2. (권장) 키 사용처를 내 도메인으로 제한
+
+이 키는 브라우저 코드에 그대로 들어가기 때문에, 배포된 사이트의 코드를 볼 줄 아는 사람이면
+누구나 볼 수 있습니다. 무료 티어라 돈이 나가는 건 아니지만, 남이 내 무료 사용량을 축내는 걸
+막으려면 아래처럼 도메인을 제한해두는 게 좋습니다.
+
+1. https://console.cloud.google.com/apis/credentials 접속 (같은 구글 계정)
+2. 방금 만든 API 키를 찾아서 클릭
+3. **"Application restrictions"** → **"Websites"** 선택
+4. `https://kimsaoo.github.io/*` 추가
+5. 저장
+
+### 4-3. 로컬 `.env`와 GitHub Secrets에 등록
+
+- 로컬: `.env` 파일에 한 줄 추가
+  ```
+  VITE_GEMINI_API_KEY=발급받은키
+  ```
+- 배포: GitHub Secrets에도 동일하게 하나 추가
+  1. Settings → Secrets and variables → Actions → New repository secret
+  2. Name: `VITE_GEMINI_API_KEY`, Secret: 발급받은 키
+  3. Actions 탭에서 Re-run 하거나, 새 커밋 push
+
+---
+
+## 5단계. 데이터 수정이 필요할 때
 
 - 도료/보유목록/킷은 모두 앱 안에서 추가·수정·삭제됩니다 (엑셀을 다시 열 필요 없음)
 - "미검증" 탭에서 아직 실제 색이 맞는지 확인 안 된 유사도료 연결을 모아볼 수 있습니다.
