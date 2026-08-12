@@ -1,6 +1,6 @@
-import { PAINT_MANUFACTURERS, PAINT_TYPES } from '../lib/constants';
+import { PAINT_TYPES } from '../lib/constants';
 
-export default function PaintFormFields({ value, onChange, disabled }) {
+export default function PaintFormFields({ value, onChange, disabled, manufacturers = [] }) {
   return (
     <>
       <div className="field-group">
@@ -11,7 +11,7 @@ export default function PaintFormFields({ value, onChange, disabled }) {
           disabled={disabled}
         >
           <option value="">선택</option>
-          {PAINT_MANUFACTURERS.map((m) => (
+          {manufacturers.map((m) => (
             <option key={m} value={m}>
               {m}
             </option>

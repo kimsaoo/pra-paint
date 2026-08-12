@@ -100,11 +100,11 @@ function buildPaintGraph() {
   for (const text of ownedOtherBrandRaw.gunze_hobby_color || []) {
     const { code, name, note } = splitCodeNameNote(text);
     const ptype = /spray|스프레이/i.test(name) ? '락커스프레이' : '아크릴';
-    getOrCreate('GCI', code, name, ptype, true, note);
+    getOrCreate('GSI', code, name, ptype, true, note);
   }
   for (const text of ownedOtherBrandRaw.gunze_lacquer_s || []) {
     const { code, name, note } = splitCodeNameNote(text);
-    getOrCreate('GCI', code, name, '락커스프레이', true, note);
+    getOrCreate('GSI', code, name, '락커스프레이', true, note);
   }
   for (const text of ownedOtherBrandRaw.other_testor_italeri || []) {
     const { manufacturer, code, name, note } = parseTestorItaleri(text);

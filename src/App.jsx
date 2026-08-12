@@ -2,17 +2,20 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ensureAuth } from './firebase';
 import { useCollection } from './lib/useCollection';
 import { seedInitialData } from './lib/seedData';
+import { ensureManufacturerLists } from './lib/bootstrapManufacturers';
 import { paintsById } from './lib/matching';
 import { Spinner } from './components/Common';
 
 import AllPaints from './components/AllPaints';
 import KitManager from './components/KitManager';
 import Wishlist from './components/Wishlist';
+import ManufacturerManager from './components/ManufacturerManager';
 
 const TABS = [
   { key: 'all', label: '도료', icon: '🗄️' },
   { key: 'wishlist', label: '위시리스트', icon: '🛒' },
   { key: 'kits', label: '킷', icon: '🏍️' },
+  { key: 'manufacturers', label: '제조사', icon: '🏷️' },
 ];
 
 export default function App() {
@@ -29,13 +32,23 @@ export default function App() {
   const { data: kits, loading: kitsLoading } = useCollection('kits', authReady);
   const { data: paints, loading: paintsLoading } = useCollection('paints', authReady);
   const { data: kitPaintLinks, loading: linksLoading } = useCollection('kitPaintLinks', authReady);
+  const { data: paintManufacturers, loading: pmLoading } = useCollection('paintManufacturers', authReady);
+  const { data: kitManufacturers, loading: kmLoading } = useCollection('kitManufacturers', authReady);
 
   const byId = useMemo(() => paintsById(paints), [paints]);
 
-  const loading = !authReady || kitsLoading || paintsLoading || linksLoading;
+  const loading = !authReady || kitsLoading || paintsLoading || linksLoading || pmLoading || kmLoading;
   const isEmpty = authReady && !loading && paints.length === 0;
 
   const seedLockRef = useRef(false);
+  const bootstrappedRef = useRef(false);
+
+  useEffect(() => {
+    if (!loading && !bootstrappedRef.current) {
+      bootstrappedRef.current = true;
+      ensureManufacturerLists(paints, kits).catch((err) => console.error('제조사 부트스트랩 실패', err));
+    }
+  }, [loading, paints, kits]);
 
   async function handleSeed() {
     if (seedLockRef.current) return; // 상태 업데이트를 기다리지 않고 즉시 막음 (더블클릭 방지)
@@ -91,10 +104,27 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {tab === 'all' && <AllPaints paints={paints} byId={byId} />}
+        {tab === 'all' && (
+          <AllPaints paints={paints} byId={byId} manufacturers={paintManufacturers} />
+        )}
         {tab === 'wishlist' && <Wishlist paints={paints} kitPaintLinks={kitPaintLinks} kits={kits} byId={byId} />}
         {tab === 'kits' && (
-          <KitManager kits={kits} kitPaintLinks={kitPaintLinks} paints={paints} byId={byId} />
+          <KitManager
+            kits={kits}
+            kitPaintLinks={kitPaintLinks}
+            paints={paints}
+            byId={byId}
+            kitManufacturers={kitManufacturers}
+            paintManufacturers={paintManufacturers}
+          />
+        )}
+        {tab === 'manufacturers' && (
+          <ManufacturerManager
+            paintManufacturers={paintManufacturers}
+            kitManufacturers={kitManufacturers}
+            paints={paints}
+            kits={kits}
+          />
         )}
       </main>
 

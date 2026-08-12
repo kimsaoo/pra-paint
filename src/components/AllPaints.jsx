@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
-import { PAINT_MANUFACTURERS } from '../lib/constants';
 import { PaintCap, WishlistToggle } from './Common';
 import { updateItem } from '../lib/useCollection';
 import PaintEditModal from './PaintEditModal';
 
-export default function AllPaints({ paints, byId }) {
+export default function AllPaints({ paints, byId, manufacturers = [] }) {
   const [filterManufacturer, setFilterManufacturer] = useState('all');
   const [filterOwned, setFilterOwned] = useState('all');
   const [editing, setEditing] = useState(null); // null | 'closed' | paint | 'new'
@@ -55,15 +54,18 @@ export default function AllPaints({ paints, byId }) {
         >
           모든 제조사
         </button>
-        {PAINT_MANUFACTURERS.map((m) => (
-          <button
-            key={m}
-            className={`filter-chip ${filterManufacturer === m ? 'active' : ''}`}
-            onClick={() => setFilterManufacturer(m)}
-          >
-            {m}
-          </button>
-        ))}
+        {manufacturers
+          .map((m) => m.name)
+          .sort()
+          .map((m) => (
+            <button
+              key={m}
+              className={`filter-chip ${filterManufacturer === m ? 'active' : ''}`}
+              onClick={() => setFilterManufacturer(m)}
+            >
+              {m}
+            </button>
+          ))}
       </div>
 
       {filtered.length === 0 && (
@@ -105,6 +107,7 @@ export default function AllPaints({ paints, byId }) {
           paint={editing === 'new' ? null : editing}
           allPaints={paints}
           byId={byId}
+          manufacturers={manufacturers.map((m) => m.name)}
           onClose={() => setEditing(null)}
         />
       )}

@@ -1,18 +1,16 @@
 // ===== 도료(Paint) 관련 =====
-export const PAINT_MANUFACTURERS = [
-  'Tamiya', 'Vallejo', 'MIG', 'AK', 'GCI', 'Testor', 'Italeri', 'Academy', '기타',
+// 초기 부트스트랩 시 참고용 (실제로는 기존 도료/킷 데이터에서 실사용 중인 제조사를 스캔해서
+// paintManufacturers/kitManufacturers 컬렉션을 만듦 - App.jsx의 ensureManufacturerLists 참고)
+export const FALLBACK_PAINT_MANUFACTURERS = [
+  'Tamiya', 'Vallejo', 'MIG', 'AK', 'GSI', 'Testor', 'Italeri', 'Academy', '기타',
 ];
-// ⚠️ 원 요청 목록(tamiya/Vallejo/mig/AK/GCI/testor/Italeri/기타)에 'Academy'를 추가함.
-// 기존 보유목록에 아카데미 에나멜 24종이 있어 마이그레이션 시 갈 곳이 필요했음 — 필요 없으면 알려주세요.
+export const FALLBACK_KIT_MANUFACTURERS = [
+  'Tamiya', 'Academy', 'Meng', 'Heller', 'Italeri', 'Takom', 'Dragon',
+  'Bronco', 'AFV Club', 'Hasegawa', 'Finemold',
+];
 
 export const PAINT_TYPES = [
   '락커스프레이', '아크릴스프레이', '에나멜', '아크릴', '락커(병)', '기타',
-];
-
-// ===== 킷(Kit) 관련 — 도료와 별도 목록 =====
-export const KIT_MANUFACTURERS = [
-  'Tamiya', 'Academy', 'Meng', 'Heller', 'Italeri', 'Takom', 'Dragon',
-  'Bronco', 'AFV Club', 'Hasegawa', 'Finemold',
 ];
 
 export const PRODUCT_TYPES = ['AFV', 'AUTO', 'BIKE', 'SHIP'];
@@ -35,7 +33,7 @@ export const UNVERIFIED_KEYWORDS = {
 // 브랜드칩 등 UI 색상용
 const BRAND_COLORS = {
   Tamiya: '#C1502E', Vallejo: '#3E6FA0', MIG: '#D98A2B', AK: '#4F7942',
-  GCI: '#6B5B95', Testor: '#8B8378', Italeri: '#8B8378', Academy: '#8B8378', '기타': '#6E6259',
+  GSI: '#6B5B95', GCI: '#6B5B95', Testor: '#8B8378', Italeri: '#8B8378', Academy: '#8B8378', '기타': '#6E6259',
 };
 export function brandColorVar(manufacturer) {
   return BRAND_COLORS[manufacturer] || BRAND_COLORS['기타'];

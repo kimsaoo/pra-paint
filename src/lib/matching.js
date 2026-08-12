@@ -3,6 +3,7 @@
  * 유사도료도 paint.similarLinks(=[{paintId, verified}])로 이미 연결되어 있어서
  * 예전처럼 코드 문자열을 파싱/대조할 필요가 없습니다.
  */
+import { extractColorTokens } from './colorWords';
 
 export function paintsById(paints) {
   const map = new Map();
@@ -27,4 +28,22 @@ export function paintsForKit(kitId, kitPaintLinks, allPaints) {
     .filter((l) => l.kitId === kitId)
     .map((l) => byId.get(l.paintId))
     .filter(Boolean);
+}
+
+/** 색상명 텍스트 토큰 겹침으로 유사도료 후보를 찾음 (등록 시점 자동추천용) */
+export function findSimilarCandidates(name, allPaints, excludeIds = new Set(), maxResults = 5) {
+  const { colors: targetColors, all: targetAll } = extractColorTokens(name);
+  if (targetColors.length === 0) return [];
+
+  const scored = [];
+  for (const p of allPaints) {
+    if (excludeIds.has(p.id)) continue;
+    const { colors, all } = extractColorTokens(p.name);
+    const overlap = targetColors.filter((c) => colors.includes(c));
+    if (overlap.length === 0) continue;
+    const exact = targetAll.slice().sort().join(',') === all.slice().sort().join(',');
+    scored.push({ ...p, score: overlap.length + (exact ? 100 : 0) });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, maxResults);
 }

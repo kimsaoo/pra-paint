@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { KIT_MANUFACTURERS, PRODUCT_TYPES } from '../lib/constants';
+import { PRODUCT_TYPES } from '../lib/constants';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle } from './Common';
 import PaintEditModal from './PaintEditModal';
@@ -8,7 +8,7 @@ import { getSimilarPaints } from '../lib/matching';
 
 const emptyKitForm = { name: '', manufacturer: '', productType: '' };
 
-export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
+export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
   const [editingKit, setEditingKit] = useState(null); // null | 'new' | kit
   const [kitForm, setKitForm] = useState(emptyKitForm);
   const [expandedKitId, setExpandedKitId] = useState(null);
@@ -165,6 +165,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
                     paint={null}
                     allPaints={paints}
                     byId={byId}
+                    manufacturers={paintManufacturers.map((m) => m.name)}
                     onClose={(saved) => handleNewPaintSaved(kit.id, saved)}
                   />
                 )}
@@ -172,6 +173,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
                 {addMode === 'image' && (
                   <ImagePaintImport
                     paints={paints}
+                    manufacturers={paintManufacturers.map((m) => m.name)}
                     onCancel={() => setAddMode(null)}
                     onConfirm={(created) => handleImageImportConfirm(kit.id, created)}
                   />
@@ -197,7 +199,13 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
       })}
 
       {editingPaint && (
-        <PaintEditModal paint={editingPaint} allPaints={paints} byId={byId} onClose={() => setEditingPaint(null)} />
+        <PaintEditModal
+          paint={editingPaint}
+          allPaints={paints}
+          byId={byId}
+          manufacturers={paintManufacturers.map((m) => m.name)}
+          onClose={() => setEditingPaint(null)}
+        />
       )}
 
       {editingKit && (
@@ -208,9 +216,9 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
               <label>제조사 *</label>
               <select value={kitForm.manufacturer} onChange={(e) => setKitForm({ ...kitForm, manufacturer: e.target.value })}>
                 <option value="">선택</option>
-                {KIT_MANUFACTURERS.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
+                {kitManufacturers.map((m) => (
+                  <option key={m.id} value={m.name}>
+                    {m.name}
                   </option>
                 ))}
               </select>

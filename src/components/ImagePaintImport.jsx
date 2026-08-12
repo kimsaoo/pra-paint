@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { fileToResizedBase64 } from '../lib/imageUtils';
 import { extractPaintsFromImage } from '../lib/gemini';
-import { PAINT_MANUFACTURERS, PAINT_TYPES } from '../lib/constants';
+import { PAINT_TYPES } from '../lib/constants';
 import { guessTamiyaPaintType } from '../lib/normalize';
 import { addItem } from '../lib/useCollection';
 
@@ -10,7 +10,7 @@ function guessType(manufacturer, code) {
   return '기타';
 }
 
-export default function ImagePaintImport({ paints, onCancel, onConfirm }) {
+export default function ImagePaintImport({ paints, manufacturers = [], onCancel, onConfirm }) {
   const [status, setStatus] = useState('idle'); // idle | loading | review | error
   const [rows, setRows] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
@@ -120,7 +120,7 @@ export default function ImagePaintImport({ paints, onCancel, onConfirm }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <input type="checkbox" checked={r.include} onChange={(e) => updateRow(r.id, 'include', e.target.checked)} />
                 <select value={r.manufacturer} onChange={(e) => updateRow(r.id, 'manufacturer', e.target.value)} style={{ flex: 1 }}>
-                  {PAINT_MANUFACTURERS.map((m) => (
+                  {manufacturers.map((m) => (
                     <option key={m} value={m}>
                       {m}
                     </option>
