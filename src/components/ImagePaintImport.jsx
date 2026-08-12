@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { fileToResizedBase64 } from '../lib/imageUtils';
 import { extractPaintsFromImage } from '../lib/gemini';
 import { PAINT_TYPES } from '../lib/constants';
-import { guessTamiyaPaintType } from '../lib/normalize';
+import { guessTamiyaPaintType, normalizeCodeForManufacturer } from '../lib/normalize';
 import { addItem } from '../lib/useCollection';
 
 function guessType(manufacturer, code) {
@@ -53,8 +53,9 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
     const included = rows.filter((r) => r.include && r.code.trim());
     const result = [];
     for (const r of included) {
+      const finalCode = normalizeCodeForManufacturer(r.manufacturer, r.code.trim());
       const existing = paints.find(
-        (p) => p.manufacturer === r.manufacturer && p.code.trim().toUpperCase() === r.code.trim().toUpperCase()
+        (p) => p.manufacturer === r.manufacturer && p.code.trim().toUpperCase() === finalCode.toUpperCase()
       );
       if (existing) {
         result.push(existing);
@@ -62,13 +63,13 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
         const ref = await addItem('paints', {
           manufacturer: r.manufacturer,
           paintType: r.paintType || '기타',
-          code: r.code.trim(),
+          code: finalCode,
           name: r.name.trim(),
           note: '',
           owned: false,
           similarLinks: [],
         });
-        result.push({ id: ref.id, manufacturer: r.manufacturer, code: r.code.trim(), name: r.name.trim() });
+        result.push({ id: ref.id, manufacturer: r.manufacturer, code: finalCode, name: r.name.trim() });
       }
     }
     onConfirm(result);

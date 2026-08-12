@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import { PaintCap, WishlistToggle } from './Common';
 import { updateItem } from '../lib/useCollection';
 import PaintEditModal from './PaintEditModal';
+import NormalizeCleanupModal from './NormalizeCleanupModal';
 
-export default function AllPaints({ paints, byId, manufacturers = [] }) {
+export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLinks = [] }) {
   const [filterManufacturer, setFilterManufacturer] = useState('all');
   const [filterOwned, setFilterOwned] = useState('all');
   const [editing, setEditing] = useState(null); // null | 'closed' | paint | 'new'
   const [query, setQuery] = useState('');
+  const [showCleanup, setShowCleanup] = useState(false);
 
   const filtered = useMemo(() => {
     return paints
@@ -29,9 +31,14 @@ export default function AllPaints({ paints, byId, manufacturers = [] }) {
     <div>
       <div className="flex-between">
         <div className="section-title">🗄️ 도료 ({paints.length})</div>
-        <button className="btn primary sm" onClick={() => setEditing('new')}>
-          + 추가
-        </button>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn sm" onClick={() => setShowCleanup(true)}>
+            🧹 정리
+          </button>
+          <button className="btn primary sm" onClick={() => setEditing('new')}>
+            + 추가
+          </button>
+        </div>
       </div>
 
       <div className="search-bar">
@@ -110,6 +117,10 @@ export default function AllPaints({ paints, byId, manufacturers = [] }) {
           manufacturers={manufacturers.map((m) => m.name)}
           onClose={() => setEditing(null)}
         />
+      )}
+
+      {showCleanup && (
+        <NormalizeCleanupModal paints={paints} kitPaintLinks={kitPaintLinks} onClose={() => setShowCleanup(false)} />
       )}
     </div>
   );

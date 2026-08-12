@@ -105,7 +105,7 @@ export default function App() {
 
       <main className="app-main">
         {tab === 'all' && (
-          <AllPaints paints={paints} byId={byId} manufacturers={paintManufacturers} />
+          <AllPaints paints={paints} byId={byId} manufacturers={paintManufacturers} kitPaintLinks={kitPaintLinks} />
         )}
         {tab === 'wishlist' && <Wishlist paints={paints} kitPaintLinks={kitPaintLinks} kits={kits} byId={byId} />}
         {tab === 'kits' && (

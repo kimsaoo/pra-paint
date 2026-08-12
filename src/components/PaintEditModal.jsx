@@ -4,6 +4,7 @@ import { BrandChip, OwnedBadge } from './Common';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { linkSimilarPaints, unlinkSimilarPaints, setSimilarVerified } from '../lib/paintLinks';
 import { getSimilarPaints, findSimilarCandidates } from '../lib/matching';
+import { normalizeCodeForManufacturer } from '../lib/normalize';
 
 /**
  * paint: null(신규) | 기존 paint 객체
@@ -55,9 +56,32 @@ export default function PaintEditModal({ paint, forceOwned, allPaints, byId, man
     });
   }
 
+  const normalizedCode = useMemo(
+    () => normalizeCodeForManufacturer(form.manufacturer, form.code),
+    [form.manufacturer, form.code]
+  );
+  const codeWillChange = normalizedCode && normalizedCode !== form.code.trim();
+
   async function save() {
     if (!isPaintFormValid(form)) return;
-    const data = { ...form, code: form.code.trim(), name: form.name.trim(), owned };
+    const finalCode = normalizedCode || form.code.trim();
+    const data = { ...form, code: finalCode, name: form.name.trim(), owned };
+
+    // 신규 등록인데 같은 제조사+정규화된 코드의 도료가 이미 있으면 중복 생성 대신 알려줌
+    if (!paint) {
+      const dup = allPaints.find(
+        (p) => p.manufacturer === data.manufacturer && p.code.trim().toUpperCase() === finalCode.toUpperCase()
+      );
+      if (dup) {
+        const proceed = confirm(
+          `이미 등록된 도료입니다: "${dup.manufacturer} ${dup.code} ${dup.name}". 새로 만들지 않고 이 도료를 그대로 사용할까요?`
+        );
+        if (proceed) {
+          onClose(dup);
+          return;
+        }
+      }
+    }
 
     let savedPaint;
     if (paint) {
@@ -97,6 +121,11 @@ export default function PaintEditModal({ paint, forceOwned, allPaints, byId, man
         <div className="modal-title">{paint ? '도료 수정' : '도료 추가'}</div>
 
         <PaintFormFields value={form} onChange={setForm} manufacturers={manufacturers} />
+        {codeWillChange && (
+          <div className="text-faint" style={{ marginTop: -6, marginBottom: 10 }}>
+            표준 표기로 저장됩니다: <span className="code-text">{normalizedCode}</span>
+          </div>
+        )}
 
         {!forceOwned && (
           <div className="field-group">

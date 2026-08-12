@@ -122,3 +122,42 @@ export function guessTamiyaPaintType(code) {
   if (/^X-|^XF-/i.test(code)) return '에나멜';
   return '기타';
 }
+
+/**
+ * 사용자가 입력한 코드를 브랜드별 표준 표기로 정규화.
+ * 예: Vallejo "950" → "70.950" / MIG "48" → "MIG-0048" / AK "11001" → "AK 11001"
+ * 규칙에 안 맞거나 애매하면 원본을 그대로 반환 (억지로 바꾸지 않음).
+ */
+export function normalizeCodeForManufacturer(manufacturer, rawCode) {
+  if (!rawCode) return rawCode;
+  const code = String(rawCode).trim();
+
+  if (manufacturer === 'Vallejo') {
+    if (/^\d{2}\.\d{3}N?$/i.test(code)) return code; // 이미 70.950 형식
+    const m = code.match(/^(\d{3})(N)?$/i); // "950" 또는 "950N"
+    if (m) return `70.${m[1]}${m[2] ? 'N' : ''}`;
+    return code;
+  }
+
+  if (manufacturer === 'MIG') {
+    if (/^ATOM\d+$/i.test(code)) return code.toUpperCase();
+    if (/^MIG-F\d+$/i.test(code)) return code.toUpperCase();
+    const m = code.match(/^(?:MIG-?)?0*(\d{1,4})$/i); // "48", "MIG48", "MIG-0048"
+    if (m) return `MIG-${m[1].padStart(4, '0')}`;
+    return code;
+  }
+
+  if (manufacturer === 'AK') {
+    const m = code.match(/^(?:AK\s?)?(\d{4,5})$/i); // "11001" 또는 "AK11001"
+    if (m) return `AK ${m[1]}`;
+    return code; // CARC232 등 별도 라인업 코드는 그대로 둠
+  }
+
+  if (manufacturer === 'Tamiya') {
+    const m = code.match(/^(LP|TS|XF|X)-?0*(\d+)$/i); // "xf1", "XF01" 등
+    if (m) return `${m[1].toUpperCase()}-${m[2]}`;
+    return code;
+  }
+
+  return code;
+}
