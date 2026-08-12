@@ -19,15 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        
-      - name: Debug secrets (키 값은 노출 안 됨, 길이만 확인)
-        run: |
-          echo "API_KEY length: ${#VITE_FIREBASE_API_KEY}"
-          echo "PROJECT_ID length: ${#VITE_FIREBASE_PROJECT_ID}"
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          
+
       - name: Build
         run: npm run build
         env:

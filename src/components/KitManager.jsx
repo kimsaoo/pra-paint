@@ -13,6 +13,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
   const [expandedKitId, setExpandedKitId] = useState(null);
   const [addMode, setAddMode] = useState(null); // null | 'search' | 'new'
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingPaint, setEditingPaint] = useState(null);
 
   function openNewKit() {
     setKitForm(emptyKitForm);
@@ -110,7 +111,10 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
                   const similar = getSimilarPaints(p, byId);
                   return (
                     <div className="flex-between mt-4" key={link.id}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', cursor: 'pointer' }}
+                        onClick={() => setEditingPaint(p)}
+                      >
                         <PaintCap manufacturer={p.manufacturer} />
                         <span className="code-text">{p.code}</span>
                         <span className="text-dim">{p.name}</span>
@@ -174,6 +178,10 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId }) {
           </div>
         );
       })}
+
+      {editingPaint && (
+        <PaintEditModal paint={editingPaint} allPaints={paints} byId={byId} onClose={() => setEditingPaint(null)} />
+      )}
 
       {editingKit && (
         <div className="modal-overlay" onClick={() => setEditingKit(null)}>
