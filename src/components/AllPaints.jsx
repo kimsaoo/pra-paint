@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { PAINT_MANUFACTURERS } from '../lib/constants';
-import { OwnedBadge, PaintCap, WishlistToggle } from './Common';
+import { PaintCap, WishlistToggle } from './Common';
 import { updateItem } from '../lib/useCollection';
 import PaintEditModal from './PaintEditModal';
 
@@ -18,6 +18,10 @@ export default function AllPaints({ paints, byId }) {
       .sort((a, b) => a.manufacturer.localeCompare(b.manufacturer) || a.code.localeCompare(b.code));
   }, [paints, filterManufacturer, filterOwned, query]);
 
+  async function toggleOwned(paint) {
+    await updateItem('paints', paint.id, { owned: !paint.owned });
+  }
+
   async function toggleWishlist(paint, value) {
     await updateItem('paints', paint.id, { wishlisted: value });
   }
@@ -25,7 +29,7 @@ export default function AllPaints({ paints, byId }) {
   return (
     <div>
       <div className="flex-between">
-        <div className="section-title">🗄️ 전체 도료 ({paints.length})</div>
+        <div className="section-title">🗄️ 도료 ({paints.length})</div>
         <button className="btn primary sm" onClick={() => setEditing('new')}>
           + 추가
         </button>
@@ -71,7 +75,7 @@ export default function AllPaints({ paints, byId }) {
 
       {filtered.map((p) => (
         <div className="paint-row" key={p.id}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, cursor: 'pointer' }} onClick={() => setEditing(p)}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={() => setEditing(p)}>
             <PaintCap manufacturer={p.manufacturer} size="lg" />
             <div className="paint-info">
               <div className="paint-code">
@@ -83,7 +87,15 @@ export default function AllPaints({ paints, byId }) {
               </div>
             </div>
           </div>
-          <OwnedBadge owned={p.owned} />
+          <button
+            className={`btn sm ${p.owned ? 'primary' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleOwned(p);
+            }}
+          >
+            {p.owned ? '● 보유' : '○ 미보유'}
+          </button>
           <WishlistToggle paint={p} onToggle={toggleWishlist} />
         </div>
       ))}

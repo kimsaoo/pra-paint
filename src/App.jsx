@@ -5,16 +5,12 @@ import { seedInitialData } from './lib/seedData';
 import { paintsById } from './lib/matching';
 import { Spinner } from './components/Common';
 
-import MatchSearch from './components/MatchSearch';
 import AllPaints from './components/AllPaints';
 import KitManager from './components/KitManager';
-import OwnedList from './components/OwnedList';
 import Wishlist from './components/Wishlist';
 
 const TABS = [
-  { key: 'search', label: '검색', icon: '🔍' },
-  { key: 'all', label: '전체도료', icon: '🗄️' },
-  { key: 'owned', label: '보유목록', icon: '🧴' },
+  { key: 'all', label: '도료', icon: '🗄️' },
   { key: 'wishlist', label: '위시리스트', icon: '🛒' },
   { key: 'kits', label: '킷', icon: '🏍️' },
 ];
@@ -22,7 +18,7 @@ const TABS = [
 export default function App() {
   const [authReady, setAuthReady] = useState(false);
   const [seeding, setSeeding] = useState(false);
-  const [tab, setTab] = useState('search');
+  const [tab, setTab] = useState('all');
 
   useEffect(() => {
     ensureAuth()
@@ -95,9 +91,7 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {tab === 'search' && <MatchSearch paints={paints} byId={byId} />}
         {tab === 'all' && <AllPaints paints={paints} byId={byId} />}
-        {tab === 'owned' && <OwnedList paints={paints} />}
         {tab === 'wishlist' && <Wishlist paints={paints} kitPaintLinks={kitPaintLinks} kits={kits} byId={byId} />}
         {tab === 'kits' && (
           <KitManager kits={kits} kitPaintLinks={kitPaintLinks} paints={paints} byId={byId} />
