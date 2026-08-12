@@ -148,9 +148,9 @@ export function normalizeCodeForManufacturer(manufacturer, rawCode) {
   }
 
   if (manufacturer === 'AK') {
-    const m = code.match(/^(?:AK\s?)?(\d{4,5})$/i); // "11001" 또는 "AK11001"
-    if (m) return `AK ${m[1]}`;
-    return code; // CARC232 등 별도 라인업 코드는 그대로 둠
+    // AK는 신규/구형 라인업, Real Colors, CARC 등 코드 체계가 제각각이라
+    // 자동으로 맞춰 넣기 어려움. 사용자가 입력한 그대로 저장 (억지로 바꾸지 않음).
+    return code;
   }
 
   if (manufacturer === 'Tamiya') {
