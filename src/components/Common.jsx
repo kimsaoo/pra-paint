@@ -19,9 +19,12 @@ export function OwnedBadge({ owned }) {
   );
 }
 
-/** 제조사 아이콘 (이니셜 뱃지 - 실제 로고 대신 자체 표기) */
-export function PaintCap({ manufacturer, size = 'sm' }) {
+/** 제조사 아이콘. iconUrl이 있으면 등록된 이미지, 없으면 이니셜 뱃지(기본값) */
+export function PaintCap({ manufacturer, size = 'sm', iconUrl }) {
   const cls = size === 'lg' ? 'paint-cap-lg' : 'paint-cap';
+  if (iconUrl) {
+    return <img src={iconUrl} alt={manufacturer} className={`${cls} brand-icon-img`} title={manufacturer} />;
+  }
   return (
     <span className={`${cls} brand-icon`} style={{ background: brandColorVar(manufacturer) }} title={manufacturer}>
       {brandInitials(manufacturer)}

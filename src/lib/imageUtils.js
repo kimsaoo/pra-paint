@@ -28,3 +28,29 @@ export function fileToResizedBase64(file, maxDim = 1600, quality = 0.85) {
     reader.readAsDataURL(file);
   });
 }
+
+/** 제조사 아이콘용 - 정사각형으로 축소, 투명배경 유지(PNG) */
+export function fileToIconDataUrl(file, maxDim = 128) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('파일을 읽지 못했습니다'));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('이미지를 열지 못했습니다'));
+      img.onload = () => {
+        const size = Math.min(maxDim, Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.min(size / img.width, size / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}

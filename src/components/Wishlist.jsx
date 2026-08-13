@@ -3,8 +3,9 @@ import { getSimilarPaints } from '../lib/matching';
 import { updateItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, PaintCap, ColorSwatch } from './Common';
 
-export default function Wishlist({ paints, kitPaintLinks, kits, byId }) {
+export default function Wishlist({ paints, kitPaintLinks, kits, byId, manufacturers = [] }) {
   const items = useMemo(() => paints.filter((p) => p.wishlisted), [paints]);
+  const iconByManufacturer = useMemo(() => new Map(manufacturers.map((m) => [m.name, m.iconUrl])), [manufacturers]);
 
   function kitNamesFor(paintId) {
     return kitPaintLinks
@@ -38,7 +39,7 @@ export default function Wishlist({ paints, kitPaintLinks, kits, byId }) {
         return (
           <div className="card" key={paint.id}>
             <div style={{ display: 'flex', gap: 10 }}>
-              <PaintCap manufacturer={paint.manufacturer} size="lg" />
+              <PaintCap manufacturer={paint.manufacturer} size="lg" iconUrl={iconByManufacturer.get(paint.manufacturer)} />
               <ColorSwatch name={paint.name} size="lg" />
               <div style={{ flex: 1 }}>
                 <div className="flex-between">

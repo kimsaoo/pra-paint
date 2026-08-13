@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { renamePaintManufacturer, renameKitManufacturer, addManufacturer, deleteManufacturer } from '../lib/manufacturerOps';
+import { updateItem } from '../lib/useCollection';
+import { fileToIconDataUrl } from '../lib/imageUtils';
+import { PaintCap } from './Common';
 
 export default function ManufacturerManager({ paintManufacturers, kitManufacturers, paints, kits }) {
   const [tab, setTab] = useState('paint'); // 'paint' | 'kit'
@@ -47,6 +50,21 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
     await deleteManufacturer(collectionName, m.id);
   }
 
+  async function uploadIcon(m, file) {
+    if (!file) return;
+    try {
+      const dataUrl = await fileToIconDataUrl(file);
+      await updateItem('paintManufacturers', m.id, { iconUrl: dataUrl });
+    } catch (err) {
+      console.error(err);
+      alert('아이콘 등록에 실패했습니다.');
+    }
+  }
+
+  async function removeIcon(m) {
+    await updateItem('paintManufacturers', m.id, { iconUrl: null });
+  }
+
   return (
     <div>
       <div className="section-title">🏷️ 제조사 관리</div>
@@ -82,6 +100,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((m) => (
           <div className="paint-row" key={m.id}>
+            <div className="paint-row-top" style={{ alignItems: 'center' }}>
             {editingId === m.id ? (
               <>
                 <input
@@ -100,10 +119,33 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
               </>
             ) : (
               <>
+                {isPaint && (
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <PaintCap manufacturer={m.name} size="lg" iconUrl={m.iconUrl} />
+                  </div>
+                )}
                 <div className="paint-info">
                   <div className="paint-code">{m.name}</div>
                   <div className="paint-kits">{usageOf(m.name)}개 사용 중</div>
                 </div>
+                {isPaint && (
+                  <>
+                    <label className="icon-btn" style={{ cursor: 'pointer' }} title="아이콘 이미지 등록">
+                      🖼️
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => uploadIcon(m, e.target.files?.[0])}
+                      />
+                    </label>
+                    {m.iconUrl && (
+                      <button className="icon-btn" onClick={() => removeIcon(m)} title="아이콘 제거">
+                        🚫
+                      </button>
+                    )}
+                  </>
+                )}
                 <button className="icon-btn" onClick={() => startEdit(m)}>
                   ✏️
                 </button>
@@ -112,6 +154,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
                 </button>
               </>
             )}
+            </div>
           </div>
         ))}
     </div>

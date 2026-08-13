@@ -107,7 +107,9 @@ export default function App() {
         {tab === 'all' && (
           <AllPaints paints={paints} byId={byId} manufacturers={paintManufacturers} kitPaintLinks={kitPaintLinks} />
         )}
-        {tab === 'wishlist' && <Wishlist paints={paints} kitPaintLinks={kitPaintLinks} kits={kits} byId={byId} />}
+        {tab === 'wishlist' && (
+          <Wishlist paints={paints} kitPaintLinks={kitPaintLinks} kits={kits} byId={byId} manufacturers={paintManufacturers} />
+        )}
         {tab === 'kits' && (
           <KitManager
             kits={kits}

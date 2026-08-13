@@ -9,6 +9,7 @@ import { getSimilarPaints } from '../lib/matching';
 const emptyKitForm = { name: '', manufacturer: '', productType: '' };
 
 export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
+  const iconByManufacturer = new Map(paintManufacturers.map((m) => [m.name, m.iconUrl]));
   const [editingKit, setEditingKit] = useState(null); // null | 'new' | kit
   const [kitForm, setKitForm] = useState(emptyKitForm);
   const [expandedKitId, setExpandedKitId] = useState(null);
@@ -123,7 +124,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                         style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', cursor: 'pointer' }}
                         onClick={() => setEditingPaint(p)}
                       >
-                        <PaintCap manufacturer={p.manufacturer} />
+                        <PaintCap manufacturer={p.manufacturer} iconUrl={iconByManufacturer.get(p.manufacturer)} />
                         <ColorSwatch name={p.name} />
                         <span className="code-text">{p.code}</span>
                         <span className="text-dim">{p.name}</span>
@@ -167,6 +168,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                     allPaints={paints}
                     byId={byId}
                     manufacturers={paintManufacturers.map((m) => m.name)}
+                    manufacturerIcons={iconByManufacturer}
                     onClose={(saved) => handleNewPaintSaved(kit.id, saved)}
                   />
                 )}
@@ -175,6 +177,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                   <ImagePaintImport
                     paints={paints}
                     manufacturers={paintManufacturers.map((m) => m.name)}
+                    manufacturerIcons={iconByManufacturer}
                     onCancel={() => setAddMode(null)}
                     onConfirm={(created) => handleImageImportConfirm(kit.id, created)}
                   />
@@ -205,6 +208,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
           allPaints={paints}
           byId={byId}
           manufacturers={paintManufacturers.map((m) => m.name)}
+                    manufacturerIcons={iconByManufacturer}
           onClose={() => setEditingPaint(null)}
         />
       )}

@@ -22,6 +22,8 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
       .sort((a, b) => a.manufacturer.localeCompare(b.manufacturer) || a.code.localeCompare(b.code));
   }, [paints, filterManufacturer, filterType, filterOwned, query]);
 
+  const iconByManufacturer = useMemo(() => new Map(manufacturers.map((m) => [m.name, m.iconUrl])), [manufacturers]);
+
   const activeFilterCount = [filterManufacturer !== 'all', filterType !== 'all', filterOwned !== 'all'].filter(Boolean).length;
 
   function resetFilters() {
@@ -120,12 +122,11 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
       <div className="paint-grid-2col">
         {filtered.map((p) => (
           <div className="paint-row" key={p.id}>
-            <div
-              style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, cursor: 'pointer', minWidth: 0 }}
-              onClick={() => setEditing(p)}
-            >
-              <PaintCap manufacturer={p.manufacturer} size="lg" />
-              <ColorSwatch name={p.name} size="lg" />
+            <div className="paint-row-top" style={{ cursor: 'pointer' }} onClick={() => setEditing(p)}>
+              <div className="paint-row-icons">
+                <PaintCap manufacturer={p.manufacturer} size="lg" iconUrl={iconByManufacturer.get(p.manufacturer)} />
+                <ColorSwatch name={p.name} size="lg" />
+              </div>
               <div className="paint-info">
                 <div className="paint-code">
                   <span className="code-text">{p.code}</span> <span className="text-dim">{p.name}</span>
@@ -136,16 +137,18 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
                 </div>
               </div>
             </div>
-            <button
-              className={`btn sm ${p.owned ? 'primary' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleOwned(p);
-              }}
-            >
-              {p.owned ? '● 보유' : '○ 미보유'}
-            </button>
-            <WishlistToggle paint={p} onToggle={toggleWishlist} />
+            <div className="paint-row-actions">
+              <button
+                className={`btn sm ${p.owned ? 'primary' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleOwned(p);
+                }}
+              >
+                {p.owned ? '● 보유' : '○ 미보유'}
+              </button>
+              <WishlistToggle paint={p} onToggle={toggleWishlist} />
+            </div>
           </div>
         ))}
       </div>
@@ -156,6 +159,7 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
           allPaints={paints}
           byId={byId}
           manufacturers={manufacturers.map((m) => m.name)}
+          manufacturerIcons={iconByManufacturer}
           onClose={() => setEditing(null)}
         />
       )}

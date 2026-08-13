@@ -13,7 +13,7 @@ import { normalizeCodeForManufacturer } from '../lib/normalize';
  * manufacturers: 도료 제조사 이름 목록 (동적, ManufacturerManager에서 관리)
  * onClose(savedPaint?): savedPaint를 넘기면 호출부에서 후속 처리(예: 킷 연결) 가능
  */
-export default function PaintEditModal({ paint, forceOwned, allPaints, byId, manufacturers = [], onClose }) {
+export default function PaintEditModal({ paint, forceOwned, allPaints, byId, manufacturers = [], manufacturerIcons, onClose }) {
   const [form, setForm] = useState(
     paint
       ? { manufacturer: paint.manufacturer, paintType: paint.paintType, code: paint.code, name: paint.name, note: paint.note || '' }
@@ -122,7 +122,7 @@ export default function PaintEditModal({ paint, forceOwned, allPaints, byId, man
 
         <PaintFormFields value={form} onChange={setForm} manufacturers={manufacturers} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: -6, marginBottom: 10 }}>
-          <PaintCap manufacturer={form.manufacturer} />
+          <PaintCap manufacturer={form.manufacturer} iconUrl={manufacturerIcons?.get(form.manufacturer)} />
           <ColorSwatch name={form.name} />
           <span className="text-faint">← 아이콘/색상 미리보기 (색상은 근사치, 참고용)</span>
         </div>

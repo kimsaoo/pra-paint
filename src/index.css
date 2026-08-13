@@ -132,6 +132,15 @@ input:focus, select:focus, textarea:focus {
 .brand-icon.paint-cap { font-size: 8px; }
 .brand-icon.paint-cap-lg { font-size: 11px; }
 
+.brand-icon-img {
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+.brand-icon-img.paint-cap { width: 14px; height: 14px; }
+.brand-icon-img.paint-cap-lg { width: 30px; height: 30px; }
+
 /* ---------- 색상 스와치 (색상명 기반 근사치, 참고용) ---------- */
 .color-swatch {
   width: 14px;
@@ -263,13 +272,36 @@ input:focus, select:focus, textarea:focus {
 /* ---------- 페인트 항목 행 (마스터/위시리스트) ---------- */
 .paint-row {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
   padding: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 8px;
+}
+
+.paint-row-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.paint-row-icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.paint-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .paint-row .paint-cap-lg {
