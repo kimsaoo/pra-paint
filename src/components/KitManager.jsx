@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react';
-import { PRODUCT_TYPES } from '../lib/constants';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle, ColorSwatch } from './Common';
 import PaintEditModal from './PaintEditModal';
 import ImagePaintImport from './ImagePaintImport';
+import KitFormModal, { emptyKitForm, kitFormFromKit } from './KitFormModal';
 import { getSimilarPaints } from '../lib/matching';
-
-const emptyKitForm = { name: '', manufacturer: '', productType: '' };
 
 export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
   const iconByManufacturer = new Map(paintManufacturers.map((m) => [m.name, m.iconUrl]));
@@ -22,15 +20,16 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
     setEditingKit('new');
   }
   function openEditKit(kit) {
-    setKitForm({ name: kit.name, manufacturer: kit.manufacturer || '', productType: kit.productType || '' });
+    setKitForm(kitFormFromKit(kit));
     setEditingKit(kit);
   }
   async function saveKit() {
     if (!kitForm.name.trim() || !kitForm.manufacturer || !kitForm.productType) return;
+    const { scaleCustom, ...data } = kitForm; // scaleCustom은 UI 상태일 뿐 저장 안 함
     if (editingKit === 'new') {
-      await addItem('kits', { ...kitForm, name: kitForm.name.trim(), order: kits.length });
+      await addItem('kits', { ...data, name: kitForm.name.trim(), order: kits.length });
     } else {
-      await updateItem('kits', editingKit.id, kitForm);
+      await updateItem('kits', editingKit.id, data);
     }
     setEditingKit(null);
   }
@@ -100,7 +99,11 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                   {kit.name}
                 </div>
                 <div className="text-faint mt-4">
-                  {kit.manufacturer} · {kit.productType} · 도료 {links.length}개
+                  {kit.manufacturer} · {kit.productType}
+                  {kit.scale && ` · ${kit.scale}`}
+                  {kit.country && ` · ${kit.country}`}
+                  {kit.status && ` · ${kit.status}`}
+                  {' · 도료 '}{links.length}개
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -214,50 +217,15 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
       )}
 
       {editingKit && (
-        <div className="modal-overlay" onClick={() => setEditingKit(null)}>
-          <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">{editingKit === 'new' ? '킷 추가' : '킷 수정'}</div>
-            <div className="field-group">
-              <label>제조사 *</label>
-              <select value={kitForm.manufacturer} onChange={(e) => setKitForm({ ...kitForm, manufacturer: e.target.value })}>
-                <option value="">선택</option>
-                {kitManufacturers.map((m) => (
-                  <option key={m.id} value={m.name}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field-group">
-              <label>제품 타입 *</label>
-              <select value={kitForm.productType} onChange={(e) => setKitForm({ ...kitForm, productType: e.target.value })}>
-                <option value="">선택</option>
-                {PRODUCT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field-group">
-              <label>제품명 *</label>
-              <input value={kitForm.name} onChange={(e) => setKitForm({ ...kitForm, name: e.target.value })} />
-            </div>
-            <div className="modal-actions">
-              {editingKit !== 'new' && (
-                <button className="btn danger" onClick={() => removeKit(editingKit)}>
-                  삭제
-                </button>
-              )}
-              <button className="btn" onClick={() => setEditingKit(null)}>
-                취소
-              </button>
-              <button className="btn primary" onClick={saveKit}>
-                저장
-              </button>
-            </div>
-          </div>
-        </div>
+        <KitFormModal
+          form={kitForm}
+          setForm={setKitForm}
+          kitManufacturers={kitManufacturers}
+          isNew={editingKit === 'new'}
+          onCancel={() => setEditingKit(null)}
+          onSave={saveKit}
+          onDelete={() => removeKit(editingKit)}
+        />
       )}
     </div>
   );

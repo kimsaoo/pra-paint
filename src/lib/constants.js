@@ -15,6 +15,21 @@ export const PAINT_TYPES = [
 
 export const PRODUCT_TYPES = ['AFV', 'AUTO', 'BIKE', 'SHIP'];
 
+// 제품타입별 운용국가 후보
+export const PRODUCT_TYPE_COUNTRIES = {
+  AFV: ['미국', '독일', '소련/러시아', '영국', '일본', '프랑스', '이탈리아', '이스라엘', '기타'],
+  AUTO: ['독일', '이탈리아', '영국', '미국', '일본', '프랑스', '한국', '기타'],
+  BIKE: ['일본', '이탈리아', '미국', '독일', '오스트리아', '기타'],
+  SHIP: ['미국', '일본', '영국', '독일', '소련/러시아', '프랑스', '기타'],
+};
+
+export const SCALE_PRESETS = ['1/35', '1/24', '1/12', '1/350'];
+export const DEFAULT_SCALE_BY_TYPE = { AFV: '1/35', AUTO: '1/24', BIKE: '1/12', SHIP: '1/350' };
+
+export const SIZE_CLASSES = ['대', '중', '소'];
+export const BUILD_LOCATIONS = ['집', '본가'];
+export const KIT_STATUSES = ['대기', '작업중', '완료'];
+
 // 기존 5개 킷 마이그레이션용 초기값 (제조사/타입 지정 필요해서 임의 배정 — 필요시 킷관리에서 수정)
 export const DEFAULT_KITS = [
   { name: "Suzuki GSX-RR '20", manufacturer: 'Tamiya', productType: 'BIKE' },
