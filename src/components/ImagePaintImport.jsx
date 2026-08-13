@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fileToResizedBase64 } from '../lib/imageUtils';
 import { extractPaintsFromImage } from '../lib/gemini';
 import { PAINT_TYPES } from '../lib/constants';
@@ -14,10 +14,20 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
   const [status, setStatus] = useState('idle'); // idle | loading | review | error
   const [rows, setRows] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const dropRef = useRef(null);
 
-  async function handleFile(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    if (status === 'idle') dropRef.current?.focus();
+  }, [status]);
+
+  async function processFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      setErrorMsg('이미지 파일이 아닙니다.');
+      setStatus('error');
+      return;
+    }
+    setPreviewUrl(URL.createObjectURL(file));
     setStatus('loading');
     try {
       const base64 = await fileToResizedBase64(file);
@@ -42,6 +52,51 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
       console.error(err);
       setErrorMsg(err.message || '인식 중 오류가 발생했습니다.');
       setStatus('error');
+    }
+  }
+
+  function handleFileInput(e) {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  }
+
+  // Ctrl+V (또는 모바일 붙여넣기)로 이미지가 들어오면 처리
+  function handlePasteEvent(e) {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          processFile(file);
+        }
+        return;
+      }
+    }
+  }
+
+  // 버튼을 눌러서 명시적으로 클립보드 읽기 시도 (Async Clipboard API 지원 브라우저용)
+  async function pasteFromClipboardButton() {
+    try {
+      if (!navigator.clipboard?.read) {
+        alert('이 브라우저는 버튼으로 붙여넣기를 지원하지 않습니다. 이미지를 복사한 뒤 이 화면을 클릭하고 Ctrl+V(붙여넣기)를 눌러주세요.');
+        return;
+      }
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageType = item.types.find((t) => t.startsWith('image/'));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          const file = new File([blob], 'clipboard-image.png', { type: imageType });
+          await processFile(file);
+          return;
+        }
+      }
+      alert('클립보드에서 이미지를 찾지 못했습니다. 먼저 이미지를 복사해주세요.');
+    } catch (err) {
+      console.error(err);
+      alert('클립보드 접근이 거부됐습니다. 브라우저 권한을 확인하거나 Ctrl+V로 시도해주세요.');
     }
   }
 
@@ -76,17 +131,56 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
   }
 
   return (
-    <div className="card">
+    <div
+      className="card"
+      ref={dropRef}
+      tabIndex={0}
+      onPaste={handlePasteEvent}
+      style={{ outline: 'none' }}
+    >
       {status === 'idle' && (
         <div>
           <p className="text-dim" style={{ marginBottom: 10 }}>
-            설명서의 도료 지정표가 잘 보이게 사진을 찍거나 선택해주세요.
+            설명서의 도료 지정표가 잘 보이는 이미지를 등록해주세요.
           </p>
-          <input type="file" accept="image/*" capture="environment" onChange={handleFile} />
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+            <label className="btn sm" style={{ cursor: 'pointer' }}>
+              📷 사진 촬영
+              <input type="file" accept="image/*" capture="environment" onChange={handleFileInput} style={{ display: 'none' }} />
+            </label>
+            <label className="btn sm" style={{ cursor: 'pointer' }}>
+              🖼️ 앨범에서 선택
+              <input type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} />
+            </label>
+            <button className="btn sm" onClick={pasteFromClipboardButton}>
+              📋 클립보드에서 붙여넣기
+            </button>
+          </div>
+
+          <div
+            style={{
+              border: '1px dashed var(--border)',
+              borderRadius: 8,
+              padding: '18px 12px',
+              textAlign: 'center',
+              color: 'var(--text-faint)',
+              fontSize: 12,
+            }}
+          >
+            여기를 클릭하고 <span className="code-text">Ctrl+V</span> (맥은 ⌘V)로도 붙여넣을 수 있습니다
+          </div>
         </div>
       )}
 
-      {status === 'loading' && <div className="text-dim">이미지 분석 중... (몇 초 정도 걸립니다)</div>}
+      {status === 'loading' && (
+        <div>
+          {previewUrl && (
+            <img src={previewUrl} alt="분석 중인 이미지" style={{ maxWidth: '100%', borderRadius: 8, marginBottom: 10 }} />
+          )}
+          <div className="text-dim">이미지 분석 중... (몇 초 정도 걸립니다)</div>
+        </div>
+      )}
 
       {status === 'error' && (
         <div>
@@ -97,7 +191,7 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
             {errorMsg}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn" onClick={() => setStatus('idle')}>
+            <button className="btn" onClick={() => { setStatus('idle'); setPreviewUrl(null); }}>
               다시 시도
             </button>
             <button className="btn" onClick={onCancel}>
@@ -109,6 +203,14 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
 
       {status === 'review' && (
         <div>
+          {previewUrl && (
+            <details style={{ marginBottom: 10 }}>
+              <summary className="text-faint" style={{ cursor: 'pointer' }}>
+                원본 이미지 보기
+              </summary>
+              <img src={previewUrl} alt="원본" style={{ maxWidth: '100%', borderRadius: 8, marginTop: 6 }} />
+            </details>
+          )}
           <p className="text-dim" style={{ marginBottom: 10 }}>
             인식된 {rows.length}개 항목입니다. 틀린 부분은 고치고, 필요 없는 항목은 체크 해제하세요.
           </p>
