@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { brandColorVar } from '../lib/constants';
+import { brandColorVar, brandInitials } from '../lib/constants';
+import { approximateColorFromName } from '../lib/colorWords';
 
 export function BrandChip({ manufacturer, children }) {
   return (
@@ -18,9 +19,24 @@ export function OwnedBadge({ owned }) {
   );
 }
 
+/** 제조사 아이콘 (이니셜 뱃지 - 실제 로고 대신 자체 표기) */
 export function PaintCap({ manufacturer, size = 'sm' }) {
   const cls = size === 'lg' ? 'paint-cap-lg' : 'paint-cap';
-  return <span className={cls} style={{ background: brandColorVar(manufacturer) }} />;
+  return (
+    <span className={`${cls} brand-icon`} style={{ background: brandColorVar(manufacturer) }} title={manufacturer}>
+      {brandInitials(manufacturer)}
+    </span>
+  );
+}
+
+/** 도료 색상명 기반 근사 색상 스와치 (참고용 — 실제 도료 색과 다를 수 있음) */
+export function ColorSwatch({ name, size = 'sm' }) {
+  const hex = approximateColorFromName(name);
+  const cls = size === 'lg' ? 'color-swatch-lg' : 'color-swatch';
+  if (!hex) {
+    return <span className={`${cls} color-swatch-empty`} title="색상 미리보기 없음 (참고용)" />;
+  }
+  return <span className={cls} style={{ background: hex }} title={`근사 색상 (참고용): ${hex}`} />;
 }
 
 export function Spinner() {

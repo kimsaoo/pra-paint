@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { PAINT_TYPES } from '../lib/constants';
-import { PaintCap, WishlistToggle } from './Common';
+import { PaintCap, WishlistToggle, ColorSwatch } from './Common';
 import { updateItem } from '../lib/useCollection';
 import PaintEditModal from './PaintEditModal';
 import NormalizeCleanupModal from './NormalizeCleanupModal';
@@ -125,6 +125,7 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
               onClick={() => setEditing(p)}
             >
               <PaintCap manufacturer={p.manufacturer} size="lg" />
+              <ColorSwatch name={p.name} size="lg" />
               <div className="paint-info">
                 <div className="paint-code">
                   <span className="code-text">{p.code}</span> <span className="text-dim">{p.name}</span>

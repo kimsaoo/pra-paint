@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import PaintFormFields, { emptyPaintForm, isPaintFormValid } from './PaintForm';
-import { BrandChip, OwnedBadge } from './Common';
+import { BrandChip, OwnedBadge, ColorSwatch, PaintCap } from './Common';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { linkSimilarPaints, unlinkSimilarPaints, setSimilarVerified } from '../lib/paintLinks';
 import { getSimilarPaints, findSimilarCandidates } from '../lib/matching';
@@ -121,6 +121,11 @@ export default function PaintEditModal({ paint, forceOwned, allPaints, byId, man
         <div className="modal-title">{paint ? '도료 수정' : '도료 추가'}</div>
 
         <PaintFormFields value={form} onChange={setForm} manufacturers={manufacturers} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: -6, marginBottom: 10 }}>
+          <PaintCap manufacturer={form.manufacturer} />
+          <ColorSwatch name={form.name} />
+          <span className="text-faint">← 아이콘/색상 미리보기 (색상은 근사치, 참고용)</span>
+        </div>
         {codeWillChange && (
           <div className="text-faint" style={{ marginTop: -6, marginBottom: 10 }}>
             표준 표기로 저장됩니다: <span className="code-text">{normalizedCode}</span>

@@ -120,6 +120,41 @@ input:focus, select:focus, textarea:focus {
   box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.4);
 }
 
+.brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.35);
+  line-height: 1;
+}
+.brand-icon.paint-cap { font-size: 8px; }
+.brand-icon.paint-cap-lg { font-size: 11px; }
+
+/* ---------- 색상 스와치 (색상명 기반 근사치, 참고용) ---------- */
+.color-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
+  flex-shrink: 0;
+}
+.color-swatch-lg {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 2px solid var(--border);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+.color-swatch-empty {
+  background: repeating-linear-gradient(45deg, var(--surface-2), var(--surface-2) 3px, var(--border) 3px, var(--border) 4px);
+}
+
 /* ---------- 메인 컨텐츠 ---------- */
 .app-main {
   flex: 1;

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { PRODUCT_TYPES } from '../lib/constants';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
-import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle } from './Common';
+import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle, ColorSwatch } from './Common';
 import PaintEditModal from './PaintEditModal';
 import ImagePaintImport from './ImagePaintImport';
 import { getSimilarPaints } from '../lib/matching';
@@ -124,6 +124,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                         onClick={() => setEditingPaint(p)}
                       >
                         <PaintCap manufacturer={p.manufacturer} />
+                        <ColorSwatch name={p.name} />
                         <span className="code-text">{p.code}</span>
                         <span className="text-dim">{p.name}</span>
                         <OwnedBadge owned={p.owned} />

@@ -38,3 +38,14 @@ const BRAND_COLORS = {
 export function brandColorVar(manufacturer) {
   return BRAND_COLORS[manufacturer] || BRAND_COLORS['기타'];
 }
+
+// 제조사 아이콘용 이니셜 (실제 브랜드 로고 대신 - 저작권 문제 없는 자체 표기)
+const BRAND_INITIALS = {
+  Tamiya: 'T', Vallejo: 'V', MIG: 'M', AK: 'AK', GSI: 'G', GCI: 'G',
+  Testor: 'TE', Italeri: 'IT', Academy: 'A', '기타': '?',
+};
+export function brandInitials(manufacturer) {
+  if (BRAND_INITIALS[manufacturer]) return BRAND_INITIALS[manufacturer];
+  if (!manufacturer) return '?';
+  return manufacturer.slice(0, 2).toUpperCase();
+}

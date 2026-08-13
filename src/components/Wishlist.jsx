@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { getSimilarPaints } from '../lib/matching';
 import { updateItem } from '../lib/useCollection';
-import { BrandChip, OwnedBadge, PaintCap } from './Common';
+import { BrandChip, OwnedBadge, PaintCap, ColorSwatch } from './Common';
 
 export default function Wishlist({ paints, kitPaintLinks, kits, byId }) {
   const items = useMemo(() => paints.filter((p) => p.wishlisted), [paints]);
@@ -39,6 +39,7 @@ export default function Wishlist({ paints, kitPaintLinks, kits, byId }) {
           <div className="card" key={paint.id}>
             <div style={{ display: 'flex', gap: 10 }}>
               <PaintCap manufacturer={paint.manufacturer} size="lg" />
+              <ColorSwatch name={paint.name} size="lg" />
               <div style={{ flex: 1 }}>
                 <div className="flex-between">
                   <div>
