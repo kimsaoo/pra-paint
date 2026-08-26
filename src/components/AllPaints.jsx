@@ -9,7 +9,11 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
   const [filterManufacturer, setFilterManufacturer] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [filterOwned, setFilterOwned] = useState('all');
-  const [editing, setEditing] = useState(null); // null | 'closed' | paint | 'new'
+  const [editingId, setEditingId] = useState(null); // null | paintId | 'new'
+  // 편집 중인 도료는 id로만 추적하고 최신 paints에서 매번 다시 찾아온다.
+  // (paint 객체를 그대로 state에 저장해두면 Firestore 실시간 업데이트가 모달에 반영되지 않아
+  //  유사도료 검증/삭제 버튼을 눌러도 화면이 그대로인 것처럼 보이는 문제가 있었음)
+  const editing = editingId === 'new' ? 'new' : editingId ? paints.find((p) => p.id === editingId) || null : null;
   const [query, setQuery] = useState('');
   const [showCleanup, setShowCleanup] = useState(false);
 
@@ -48,7 +52,7 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
           <button className="btn sm" onClick={() => setShowCleanup(true)}>
             🧹 정리
           </button>
-          <button className="btn primary sm" onClick={() => setEditing('new')}>
+          <button className="btn primary sm" onClick={() => setEditingId('new')}>
             + 추가
           </button>
         </div>
@@ -122,7 +126,7 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
       <div className="paint-grid-2col">
         {filtered.map((p) => (
           <div className="paint-row" key={p.id}>
-            <div className="paint-row-top" style={{ cursor: 'pointer' }} onClick={() => setEditing(p)}>
+            <div className="paint-row-top" style={{ cursor: 'pointer' }} onClick={() => setEditingId(p.id)}>
               <div className="paint-row-icons">
                 <PaintCap manufacturer={p.manufacturer} size="lg" iconUrl={iconByManufacturer.get(p.manufacturer)} />
                 <ColorSwatch name={p.name} size="lg" />
@@ -160,7 +164,7 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
           byId={byId}
           manufacturers={manufacturers.map((m) => m.name)}
           manufacturerIcons={iconByManufacturer}
-          onClose={() => setEditing(null)}
+          onClose={() => setEditingId(null)}
         />
       )}
 

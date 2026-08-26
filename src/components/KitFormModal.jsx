@@ -146,6 +146,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, onCancel
               }}
               style={{ flex: 1 }}
             >
+              <option value="">선택</option>
               {SCALE_PRESETS.map((s) => (
                 <option key={s} value={s}>
                   {s}

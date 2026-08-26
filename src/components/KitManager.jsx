@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
-import { BrandChip, OwnedBadge, PaintCap, SimilarTooltip, WishlistToggle, ColorSwatch } from './Common';
+import { BrandChip, OwnedBadge, AcquiredBadge, PaintCap, SimilarTooltip, WishlistToggle, ColorSwatch } from './Common';
 import PaintEditModal from './PaintEditModal';
 import ImagePaintImport from './ImagePaintImport';
 import KitFormModal, { emptyKitForm, kitFormFromKit } from './KitFormModal';
@@ -13,7 +13,10 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
   const [expandedKitId, setExpandedKitId] = useState(null);
   const [addMode, setAddMode] = useState(null); // null | 'search' | 'new'
   const [searchQuery, setSearchQuery] = useState('');
-  const [editingPaint, setEditingPaint] = useState(null);
+  const [editingPaintId, setEditingPaintId] = useState(null);
+  // paint 객체를 그대로 저장하지 않고 id로만 추적 → Firestore 실시간 업데이트가
+  // 모달에 즉시 반영됨 (유사도료 검증/삭제 버튼이 반응 없는 것처럼 보이던 문제 수정)
+  const editingPaint = editingPaintId ? byId.get(editingPaintId) || null : null;
 
   function openNewKit() {
     setKitForm(emptyKitForm);
@@ -125,13 +128,14 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                     <div className="flex-between mt-4" key={link.id}>
                       <div
                         style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', cursor: 'pointer' }}
-                        onClick={() => setEditingPaint(p)}
+                        onClick={() => setEditingPaintId(p.id)}
                       >
                         <PaintCap manufacturer={p.manufacturer} iconUrl={iconByManufacturer.get(p.manufacturer)} />
                         <ColorSwatch name={p.name} />
                         <span className="code-text">{p.code}</span>
                         <span className="text-dim">{p.name}</span>
                         <OwnedBadge owned={p.owned} />
+                        <AcquiredBadge paint={p} similarPaints={similar} />
                         <SimilarTooltip similarPaints={similar} />
                         {!p.owned && (
                           <WishlistToggle paint={p} onToggle={(paint, v) => updateItem('paints', paint.id, { wishlisted: v })} />
@@ -212,7 +216,7 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
           byId={byId}
           manufacturers={paintManufacturers.map((m) => m.name)}
                     manufacturerIcons={iconByManufacturer}
-          onClose={() => setEditingPaint(null)}
+          onClose={() => setEditingPaintId(null)}
         />
       )}
 

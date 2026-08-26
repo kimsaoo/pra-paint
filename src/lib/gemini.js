@@ -1,6 +1,36 @@
 const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 const SEARCH_MODEL = 'gemini-3.5-flash'; // 구글 검색 그라운딩은 flash-lite보다 flash 계열에서 안정적으로 지원됨
 
+/**
+ * 429(RESOURCE_EXHAUSTED) 응답을 사용자가 이해하기 쉬운 메시지로 변환.
+ * 무료 티어는 RPM(분당 요청수)·RPD(일일 요청수) 두 가지 한도가 있는데, 에러 바디의
+ * quotaId/문구로 어느 쪽인지 대략 구분해서 안내한다. 구분이 안 되면 RPM 쪽(재시도로 해결 가능)으로 가정.
+ */
+function buildQuotaErrorMessage(errText, modelName) {
+  const isDailyQuota = /PerDay|RPD|daily/i.test(errText);
+  if (isDailyQuota) {
+    return `Gemini API 일일 무료 할당량을 초과했습니다 (${modelName}). 무료 티어는 하루 요청 수 제한이 있어 태평양시간 자정에 초기화됩니다. 오늘은 이 기능 대신 직접 입력해주시고, 자주 한도에 걸리면 Google AI Studio에서 결제(유료 티어) 등록을 검토해보세요.`;
+  }
+  return `Gemini API 요청이 너무 잦아 잠시 제한되었습니다 (${modelName}, 분당 요청 한도). 30초~1분 정도 기다린 뒤 다시 시도해주세요.`;
+}
+
+/** 429 오류에 한해, 짧게 한 번만 재시도 (분당 한도는 수십 초 내 풀리는 경우가 많음) */
+async function fetchWithRetry(url, body, { retryDelayMs = 4000 } = {}) {
+  const doFetch = () =>
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  let res = await doFetch();
+  if (res.status === 429) {
+    await new Promise((r) => setTimeout(r, retryDelayMs));
+    res = await doFetch();
+  }
+  return res;
+}
+
 const PROMPT = `이 이미지는 프라모델 설명서에 있는 도료 지정표(페인팅 가이드)입니다.
 표/그림에 나온 각 도료 항목을 찾아서 JSON 배열로만 응답하세요. 설명 문장이나 마크다운 코드블록 없이, 순수 JSON 배열만 출력하세요.
 
@@ -30,14 +60,11 @@ export async function extractPaintsFromImage(base64Jpeg) {
     generationConfig: { temperature: 0.1 },
   };
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const res = await fetchWithRetry(url, body);
 
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
+    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, GEMINI_MODEL));
     throw new Error(`Gemini API 오류 (${res.status}): ${errText.slice(0, 200)}`);
   }
 
@@ -86,14 +113,11 @@ export async function searchKitDimensions(manufacturer, kitName, scale) {
     generationConfig: { temperature: 0.1 },
   };
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const res = await fetchWithRetry(url, body);
 
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
+    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, SEARCH_MODEL));
     throw new Error(`Gemini API 오류 (${res.status}): ${errText.slice(0, 200)}`);
   }
 

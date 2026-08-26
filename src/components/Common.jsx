@@ -19,6 +19,19 @@ export function OwnedBadge({ owned }) {
   );
 }
 
+/**
+ * 확보 여부 뱃지: 해당 도료를 직접 보유했거나, 유사도료 중 하나라도 보유한 경우 "확보"로 표시.
+ * 도료 자체의 owned(보유) 여부와는 별개의 개념 — 킷 제작 시 실제로 칠할 수 있는 색이 있는지를 나타냄.
+ */
+export function AcquiredBadge({ paint, similarPaints = [] }) {
+  const acquired = !!paint?.owned || similarPaints.some((s) => s.owned);
+  return acquired ? (
+    <span className="badge owned" title="본인 또는 유사도료 보유">✔ 확보</span>
+  ) : (
+    <span className="badge missing" title="본인/유사도료 모두 미보유">✖ 미확보</span>
+  );
+}
+
 /** 제조사 아이콘. iconUrl이 있으면 등록된 이미지, 없으면 이니셜 뱃지(기본값) */
 export function PaintCap({ manufacturer, size = 'sm', iconUrl }) {
   const cls = size === 'lg' ? 'paint-cap-lg' : 'paint-cap';
