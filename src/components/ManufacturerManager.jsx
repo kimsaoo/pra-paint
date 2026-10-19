@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { renamePaintManufacturer, renameKitManufacturer, addManufacturer, deleteManufacturer } from '../lib/manufacturerOps';
+import { renamePaintManufacturer, renameKitManufacturer, addManufacturer, deleteManufacturer, addMissingManufacturers } from '../lib/manufacturerOps';
+import { RECOMMENDED_PAINT_MANUFACTURERS, RECOMMENDED_KIT_MANUFACTURERS } from '../lib/constants';
 import { updateItem } from '../lib/useCollection';
 import { fileToIconDataUrl } from '../lib/imageUtils';
 import { PaintCap } from './Common';
@@ -9,6 +10,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
+  const [bulkAdding, setBulkAdding] = useState(false);
 
   const isPaint = tab === 'paint';
   const list = isPaint ? paintManufacturers : kitManufacturers;
@@ -20,6 +22,27 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
     if (!newName.trim()) return;
     await addManufacturer(collectionName, newName.trim());
     setNewName('');
+  }
+
+  async function addRecommended() {
+    const names = isPaint ? RECOMMENDED_PAINT_MANUFACTURERS : RECOMMENDED_KIT_MANUFACTURERS;
+    const keyOf = (n) => n.trim().toLowerCase();
+    const have = new Set(list.map((m) => keyOf(m.name)));
+    const missing = names.filter((n) => !have.has(keyOf(n)));
+    if (missing.length === 0) {
+      alert('추천 제조사가 모두 이미 등록되어 있습니다.');
+      return;
+    }
+    if (!confirm(`다음 ${missing.length}개 제조사를 추가할까요?\n\n${missing.join(', ')}`)) return;
+    setBulkAdding(true);
+    try {
+      await addMissingManufacturers(collectionName, list, names);
+    } catch (err) {
+      console.error(err);
+      alert('일괄 추가에 실패했습니다.');
+    } finally {
+      setBulkAdding(false);
+    }
   }
 
   function startEdit(m) {
@@ -54,7 +77,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
     if (!file) return;
     try {
       const dataUrl = await fileToIconDataUrl(file);
-      await updateItem('paintManufacturers', m.id, { iconUrl: dataUrl });
+      await updateItem(collectionName, m.id, { iconUrl: dataUrl });
     } catch (err) {
       console.error(err);
       alert('아이콘 등록에 실패했습니다.');
@@ -62,7 +85,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
   }
 
   async function removeIcon(m) {
-    await updateItem('paintManufacturers', m.id, { iconUrl: null });
+    await updateItem(collectionName, m.id, { iconUrl: null });
   }
 
   return (
@@ -74,7 +97,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
           도료 제조사
         </button>
         <button className={`filter-chip ${tab === 'kit' ? 'active' : ''}`} onClick={() => setTab('kit')}>
-          프라모델 제조사
+          킷 제조사
         </button>
       </div>
 
@@ -92,6 +115,11 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
               추가
             </button>
           </div>
+        </div>
+        <div className="mt-4">
+          <button className="btn sm" onClick={addRecommended} disabled={bulkAdding}>
+            {bulkAdding ? '추가 중...' : `기본 ${isPaint ? '도료' : '킷'} 제조사 일괄 추가`}
+          </button>
         </div>
       </div>
 
@@ -119,32 +147,26 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
               </>
             ) : (
               <>
-                {isPaint && (
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <PaintCap manufacturer={m.name} size="lg" iconUrl={m.iconUrl} />
-                  </div>
-                )}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <PaintCap manufacturer={m.name} size="lg" iconUrl={m.iconUrl} />
+                </div>
                 <div className="paint-info">
                   <div className="paint-code">{m.name}</div>
                   <div className="paint-kits">{usageOf(m.name)}개 사용 중</div>
                 </div>
-                {isPaint && (
-                  <>
-                    <label className="icon-btn" style={{ cursor: 'pointer' }} title="아이콘 이미지 등록">
-                      🖼️
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={(e) => uploadIcon(m, e.target.files?.[0])}
-                      />
-                    </label>
-                    {m.iconUrl && (
-                      <button className="icon-btn" onClick={() => removeIcon(m)} title="아이콘 제거">
-                        🚫
-                      </button>
-                    )}
-                  </>
+                <label className="icon-btn" style={{ cursor: 'pointer' }} title="아이콘 이미지 등록">
+                  🖼️
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => uploadIcon(m, e.target.files?.[0])}
+                  />
+                </label>
+                {m.iconUrl && (
+                  <button className="icon-btn" onClick={() => removeIcon(m)} title="아이콘 제거">
+                    🚫
+                  </button>
                 )}
                 <button className="icon-btn" onClick={() => startEdit(m)}>
                   ✏️

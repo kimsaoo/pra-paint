@@ -9,6 +9,22 @@ export const FALLBACK_KIT_MANUFACTURERS = [
   'Bronco', 'AFV Club', 'Hasegawa', 'Finemold',
 ];
 
+// ===== 제조사 일괄 추가용 추천 목록 (제조사 관리 > "기본 제조사 일괄 추가" 버튼) =====
+// 이미 등록된 이름(대소문자 무시)은 건너뜀. 정규화 로직이 의존하는 기존 명칭
+// (Tamiya / Vallejo / MIG / AK / GSI / Testor)과 겹치는 라인은 별도로 만들지 않음.
+export const RECOMMENDED_PAINT_MANUFACTURERS = [
+  'Gaianotes', 'Humbrol', 'Revell', 'Lifecolor', 'Mission Models', 'Hataka', 'Alclad II',
+];
+export const RECOMMENDED_KIT_MANUFACTURERS = [
+  // AFV
+  'Trumpeter', 'HobbyBoss', 'Rye Field Model', 'Border Model', 'Das Werk', 'MiniArt',
+  'ICM', 'Zvezda', 'Amusing Hobby', 'Eduard',
+  // AUTO / BIKE
+  'Aoshima', 'Fujimi', 'Revell', 'NuNu', 'Beemax',
+  // SHIP
+  'Flyhawk', 'Very Fire',
+];
+
 export const PAINT_TYPES = [
   '락커스프레이', '아크릴스프레이', '에나멜', '아크릴', '락커(병)', '기타',
 ];
@@ -49,6 +65,17 @@ export const UNVERIFIED_KEYWORDS = {
 const BRAND_COLORS = {
   Tamiya: '#C1502E', Vallejo: '#3E6FA0', MIG: '#D98A2B', AK: '#4F7942',
   GSI: '#6B5B95', GCI: '#6B5B95', Testor: '#8B8378', Italeri: '#8B8378', Academy: '#8B8378', '기타': '#6E6259',
+  // 추가 도료 제조사
+  Gaianotes: '#2F7F86', Humbrol: '#A33B3B', Revell: '#2D5DA8', Lifecolor: '#5E8C3A',
+  'Mission Models': '#3B6E8F', Hataka: '#B5651D', 'Alclad II': '#7A7F87',
+  // 킷 제조사 (기존)
+  Meng: '#B03A48', Heller: '#2F5D8A', Takom: '#C2872B', Dragon: '#8E2C2C', Bronco: '#6D4C2F',
+  'AFV Club': '#4A6B3A', Hasegawa: '#2E4E8C', Finemold: '#5A6B7A',
+  // 킷 제조사 (추가)
+  Trumpeter: '#9C2F2F', HobbyBoss: '#2E7D5B', 'Rye Field Model': '#7B5E2A', 'Border Model': '#3F5F7F',
+  'Das Werk': '#3A3A3A', MiniArt: '#A0522D', ICM: '#1F5F9F', Zvezda: '#B22222',
+  'Amusing Hobby': '#6A5ACD', Eduard: '#C77B30', Aoshima: '#1E6FA8', Fujimi: '#B8860B',
+  NuNu: '#D2691E', Beemax: '#4682B4', Flyhawk: '#2F6F6F', 'Very Fire': '#C1440E',
 };
 export function brandColorVar(manufacturer) {
   return BRAND_COLORS[manufacturer] || BRAND_COLORS['기타'];
@@ -58,6 +85,14 @@ export function brandColorVar(manufacturer) {
 const BRAND_INITIALS = {
   Tamiya: 'T', Vallejo: 'V', MIG: 'M', AK: 'AK', GSI: 'G', GCI: 'G',
   Testor: 'TE', Italeri: 'IT', Academy: 'A', '기타': '?',
+  Gaianotes: 'GN', Humbrol: 'HU', Revell: 'RV', Lifecolor: 'LC', 'Mission Models': 'MM',
+  Hataka: 'HK', 'Alclad II': 'AL',
+  Meng: 'MG', Heller: 'HE', Takom: 'TK', Dragon: 'DR', Bronco: 'BR', 'AFV Club': 'AF',
+  Hasegawa: 'HS', Finemold: 'FM',
+  Trumpeter: 'TR', HobbyBoss: 'HB', 'Rye Field Model': 'RFM', 'Border Model': 'BM',
+  'Das Werk': 'DW', MiniArt: 'MA', ICM: 'ICM', Zvezda: 'ZV', 'Amusing Hobby': 'AH',
+  Eduard: 'ED', Aoshima: 'AO', Fujimi: 'FJ', NuNu: 'NU', Beemax: 'BX', Flyhawk: 'FH',
+  'Very Fire': 'VF',
 };
 export function brandInitials(manufacturer) {
   if (BRAND_INITIALS[manufacturer]) return BRAND_INITIALS[manufacturer];

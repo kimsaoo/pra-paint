@@ -29,3 +29,24 @@ export async function addManufacturer(collectionName, name) {
 export async function deleteManufacturer(collectionName, id) {
   return deleteItem(collectionName, id);
 }
+
+/**
+ * 추천 목록 중 아직 없는 제조사만 일괄 추가 (이름 비교는 공백 제거·대소문자 무시).
+ * 여러 번 실행해도 중복이 생기지 않음. 추가된 이름 배열을 반환.
+ */
+export async function addMissingManufacturers(collectionName, existingList, names) {
+  const key = (n) => (n || '').trim().toLowerCase();
+  const existing = new Set(existingList.map((m) => key(m.name)));
+  const toAdd = [];
+  for (const n of names) {
+    if (!existing.has(key(n))) {
+      existing.add(key(n));
+      toAdd.push(n);
+    }
+  }
+  if (toAdd.length === 0) return [];
+  const batch = writeBatch(db);
+  for (const name of toAdd) batch.set(doc(collection(db, collectionName)), { name });
+  await batch.commit();
+  return toAdd;
+}

@@ -8,6 +8,7 @@ import { getSimilarPaints } from '../lib/matching';
 
 export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
   const iconByManufacturer = new Map(paintManufacturers.map((m) => [m.name, m.iconUrl]));
+  const kitIconByManufacturer = new Map(kitManufacturers.map((m) => [m.name, m.iconUrl]));
   const [editingKit, setEditingKit] = useState(null); // null | 'new' | kit
   const [kitForm, setKitForm] = useState(emptyKitForm);
   const [expandedKitId, setExpandedKitId] = useState(null);
@@ -101,7 +102,10 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                 <div className="code-text" style={{ fontSize: 14 }}>
                   {kit.name}
                 </div>
-                <div className="text-faint mt-4">
+                <div className="text-faint mt-4" style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                  {kit.manufacturer && (
+                    <PaintCap manufacturer={kit.manufacturer} iconUrl={kitIconByManufacturer.get(kit.manufacturer)} />
+                  )}
                   {kit.manufacturer} · {kit.productType}
                   {kit.scale && ` · ${kit.scale}`}
                   {kit.country && ` · ${kit.country}`}
