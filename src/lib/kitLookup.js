@@ -16,7 +16,8 @@ import {
   searchKitDimensionsGrounded,
 } from './gemini';
 
-const EXTRACT_MODEL = 'gemini-3.5-flash-lite';
+// 정리용 모델 (무료 등급). 첫 모델이 과부하(503)면 다음 모델로 전환
+const EXTRACT_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
 const TAVILY_URL = 'https://api.tavily.com/search';
 
 export const usingTavily = () => !!import.meta.env.VITE_TAVILY_API_KEY;
@@ -35,7 +36,7 @@ export async function tavilySearch(query, { maxResults = 5 } = {}) {
         search_depth: 'basic', // 1 크레딧
         max_results: maxResults,
         include_answer: false,
-        include_raw_content: false,
+        include_raw_content: true, // 짧은 요약만으로는 정보가 빠지는 경우가 많아 본문 포함
       }),
     });
   } catch (err) {
@@ -54,13 +55,20 @@ export async function tavilySearch(query, { maxResults = 5 } = {}) {
     throw new Error(`Tavily 검색 오류 (${res.status}). F12 Console의 [Tavily] 줄을 확인해주세요.`);
   }
   const data = await res.json();
-  return (data.results || []).map((r) => ({ title: r.title || r.url, url: r.url, content: r.content || '' }));
+  const results = (data.results || []).map((r) => ({
+    title: r.title || r.url,
+    url: r.url,
+    content: r.content || '',
+    raw: typeof r.raw_content === 'string' ? r.raw_content : '',
+  }));
+  console.info(`[Tavily] "${query}" → ${results.length}건`, results.map((r) => r.title));
+  return results;
 }
 
 /** 검색 결과를 Gemini에 넘길 텍스트로 변환 */
 function resultsToContext(results) {
   return results
-    .map((r, i) => `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.content.slice(0, 1500)}`)
+    .map((r, i) => `[${i + 1}] ${r.title}\nURL: ${r.url}\n요약: ${r.content.slice(0, 800)}\n본문: ${r.raw.slice(0, 3500)}`)
     .join('\n\n');
 }
 
@@ -68,23 +76,35 @@ function resultsToContext(results) {
 async function extractJson(prompt) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) throw new Error('Gemini API 키가 설정되지 않았습니다. .env의 VITE_GEMINI_API_KEY를 확인해주세요.');
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${EXTRACT_MODEL}:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.1, responseMimeType: 'application/json' },
   };
-  const res = await fetchWithRetry(url, body);
+  let res;
+  let model;
+  for (model of EXTRACT_MODELS) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    res = await fetchWithRetry(url, body);
+    // 과부하(503, 500)나 모델 없음(404)이면 다음 모델로
+    if (![503, 500, 404].includes(res.status)) break;
+    console.warn(`[Gemini] ${model} ${res.status}, 다음 모델로 전환`);
+  }
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, EXTRACT_MODEL));
-    throw new Error(`Gemini API 오류 (${res.status}): ${errText.slice(0, 200)}`);
+    console.error(`[Gemini] ${model} ${res.status}`, errText);
+    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, model));
+    if (res.status === 503 || res.status === 500)
+      throw new Error('Gemini 서버가 지금 붐벼서 응답하지 못했습니다(일시적). 1~2분 뒤 다시 시도해주세요. 검색 크레딧은 이미 사용되었습니다.');
+    throw new Error(`Gemini API 오류 (${res.status}). F12 Console의 [Gemini] 줄을 확인해주세요.`);
   }
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).filter(Boolean).join('') || '';
   const match = text.replace(/```json|```/g, '').match(/\{[\s\S]*\}/);
   if (!match) throw new Error('검색 결과를 정리하지 못했습니다. 다시 시도해주세요.');
   try {
-    return JSON.parse(match[0]);
+    const parsed = JSON.parse(match[0]);
+    console.info(`[Gemini] ${model} 정리 결과`, parsed);
+    return parsed;
   } catch {
     throw new Error('응답 형식을 해석하지 못했습니다. 다시 시도해주세요.');
   }

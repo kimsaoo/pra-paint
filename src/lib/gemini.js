@@ -53,6 +53,12 @@ export async function fetchWithRetry(url, body, { retryDelayMs = 4000 } = {}) {
     });
 
   let res = await doFetch();
+  // 503(모델 과부하), 500은 일시적인 경우가 많아 1.5초, 4초 간격으로 최대 2번 재시도
+  for (const wait of [1500, 4000]) {
+    if (res.status !== 503 && res.status !== 500) break;
+    await new Promise((r) => setTimeout(r, wait));
+    res = await doFetch();
+  }
   if (res.status === 429) {
     const text = await res.text().catch(() => '');
     if (classifyQuotaError(text) !== 'minute') return new Response(text, { status: 429 });

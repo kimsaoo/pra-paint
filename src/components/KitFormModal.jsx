@@ -344,7 +344,13 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
             </div>
             {infoResult && (
               <div className="text-faint mt-4" style={{ fontSize: 12 }}>
-                {infoResult.filled.length > 0 ? <div>채움: {infoResult.filled.join(', ')}</div> : <div>새로 채운 항목이 없습니다.</div>}
+                {infoResult.filled.length > 0 ? (
+                  <div>채움: {infoResult.filled.join(', ')}</div>
+                ) : infoResult.kept.length > 0 ? (
+                  <div>새로 채운 항목이 없습니다. 이미 입력된 칸은 바꾸지 않습니다(아래 유지 항목 참고).</div>
+                ) : (
+                  <div>검색 결과에서 키트 정보를 찾지 못했습니다. 품번 대신 영문 품명(예: Tiger I Early)으로 다시 시도해 보세요.</div>
+                )}
                 {infoResult.kept.length > 0 && <div>유지: {infoResult.kept.join(', ')}</div>}
                 {infoResult.notes.map((n) => (
                   <div key={n}>{n}</div>
