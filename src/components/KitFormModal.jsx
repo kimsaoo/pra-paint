@@ -11,8 +11,8 @@ import {
   normalizeKitStatus,
   showsPriority,
 } from '../lib/constants';
-import { searchKitDimensions, searchKitInfo } from '../lib/gemini';
-import { AlertTriangle, Search, Ruler } from 'lucide-react';
+import { searchKitDimensions, searchKitInfo, testSearchConnection, usingTavily } from '../lib/kitLookup';
+import { AlertTriangle, Search, Ruler, PlugZap } from 'lucide-react';
 
 function todayDot() {
   const d = new Date();
@@ -108,6 +108,18 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
   const [infoResult, setInfoResult] = useState(null); // { filled: [], kept: [], notes: [], sources: [] }
   const [autoFields, setAutoFields] = useState(new Set());
   const [copyFromId, setCopyFromId] = useState('');
+  const [testing, setTesting] = useState(false);
+
+  async function runConnectionTest() {
+    setTesting(true);
+    try {
+      alert(await testSearchConnection());
+    } catch (err) {
+      alert(err.message || '검색 연결 시험 중 오류가 발생했습니다.');
+    } finally {
+      setTesting(false);
+    }
+  }
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
 
@@ -323,6 +335,13 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
               </button>
             </div>
             <div className="text-faint mt-4">제조사를 먼저 고르면 더 정확합니다. 비어 있는 칸만 채우고, 입력한 값은 바꾸지 않습니다. 크기는 킷 정보에 없으면 실물 크기를 스케일로 환산해 채웁니다.</div>
+            <div className="text-faint mt-4" style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span>검색 방식: {usingTavily() ? 'Tavily 검색 + Gemini Flash-Lite' : 'Gemini 검색 기반 조회'}</span>
+              <button className="btn sm" onClick={runConnectionTest} disabled={testing}>
+                <PlugZap size={13} className="ico" aria-hidden="true" />
+                {testing ? '시험 중...' : '검색 연결 시험'}
+              </button>
+            </div>
             {infoResult && (
               <div className="text-faint mt-4" style={{ fontSize: 12 }}>
                 {infoResult.filled.length > 0 ? <div>채움: {infoResult.filled.join(', ')}</div> : <div>새로 채운 항목이 없습니다.</div>}

@@ -27,7 +27,7 @@ function classifyQuotaError(errText) {
   return 'unknown';
 }
 
-function buildQuotaErrorMessage(errText, modelName, { grounding = false } = {}) {
+export function buildQuotaErrorMessage(errText, modelName, { grounding = false } = {}) {
   console.error(`[Gemini 429] ${modelName}${grounding ? ' (검색 기반 조회)' : ''}`, errText);
   const kind = classifyQuotaError(errText);
   const tail = ' (원문은 F12 개발자도구 Console에서 확인할 수 있습니다)';
@@ -44,7 +44,7 @@ function buildQuotaErrorMessage(errText, modelName, { grounding = false } = {}) 
 }
 
 /** 429 오류 중 분당 한도일 때만 한 번 재시도 (한도 0이나 일일 한도는 재시도해도 소용없으므로 바로 반환) */
-async function fetchWithRetry(url, body, { retryDelayMs = 4000 } = {}) {
+export async function fetchWithRetry(url, body, { retryDelayMs = 4000 } = {}) {
   const doFetch = () =>
     fetch(url, {
       method: 'POST',
@@ -116,6 +116,47 @@ export async function extractPaintsFromImage(base64Jpeg) {
   return parsed;
 }
 
+/**
+ * 크기 조사 결과 조합: 킷 상품정보 값 우선, 빠진 항목은 실물 크기(m) ÷ 스케일로 앱에서 직접 계산
+ * parsed: { kit: {length,width,height}(mm), real: {name,length,width,height}(m), note }
+ */
+export function combineDims(parsed, scale, sources = []) {
+  const denom = scaleDenominator(scale);
+  const num = (v) => (typeof v === 'number' && isFinite(v) && v > 0 ? v : null);
+  const kit = parsed.kit || {};
+  const real = parsed.real || {};
+  const kitDims = { length: num(kit.length), width: num(kit.width), height: num(kit.height) };
+  const realDims = { length: num(real.length), width: num(real.width), height: num(real.height) };
+  const hasKit = Object.values(kitDims).some(Boolean);
+  const hasReal = Object.values(realDims).some(Boolean);
+  const toMm = (m) => (m && denom ? Math.round((m * 1000 * 10) / denom) / 10 : null);
+  const LABEL = { length: '전장', width: '전폭', height: '전고' };
+
+  if (!hasKit && !hasReal) throw new Error('킷 크기와 실물 크기를 모두 찾지 못했습니다. 직접 입력해주세요.');
+  if (!hasKit && !denom) {
+    throw new Error(
+      `킷 크기는 찾지 못했고, 실물 크기(${real.name || '실물'})는 찾았지만 스케일이 없어 환산할 수 없습니다. 스케일을 먼저 입력해주세요.`,
+    );
+  }
+
+  // 킷 상품정보 값을 우선 쓰고, 빠진 항목만 실물 크기 ÷ 스케일로 채움
+  const out = {};
+  const calcKeys = [];
+  for (const k of ['length', 'width', 'height']) {
+    if (kitDims[k]) out[k] = kitDims[k];
+    else if (realDims[k] && denom) {
+      out[k] = toMm(realDims[k]);
+      calcKeys.push(k);
+    } else out[k] = null;
+  }
+  const source = calcKeys.length === 0 ? 'kit' : hasKit ? 'mixed' : 'calculated';
+  const calcNote = calcKeys.length
+    ? `${real.name || '실물'} ${calcKeys.map((k) => `${LABEL[k]} ${realDims[k]}m`).join(', ')} ÷ ${denom}`
+    : '';
+  const note = [calcNote, parsed.note].filter(Boolean).join(', ');
+  return { ...out, source, calcKeys, note, real, sources };
+}
+
 /** "1/35", "1:35", "35" 등에서 분모 숫자를 추출. 못 읽으면 null */
 export function scaleDenominator(scale) {
   const m = String(scale || '').match(/(?:1\s*[/:]\s*)?(\d{1,4})\s*$/);
@@ -130,7 +171,7 @@ export function scaleDenominator(scale) {
  *    앱 코드에서 직접 스케일로 나눠 계산 (계산을 AI에 맡기지 않음)
  * 반환: { length, width, height, source: 'kit'|'calculated', note, real, sources }
  */
-export async function searchKitDimensions(manufacturer, kitName, scale) {
+export async function searchKitDimensionsGrounded(manufacturer, kitName, scale) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini API 키가 설정되지 않았습니다. .env의 VITE_GEMINI_API_KEY를 확인해주세요.');
@@ -176,42 +217,10 @@ export async function searchKitDimensions(manufacturer, kitName, scale) {
     .slice(0, 5)
     .map((w) => ({ title: w.title || w.uri, uri: w.uri }));
 
-  const num = (v) => (typeof v === 'number' && isFinite(v) && v > 0 ? v : null);
-  const kit = parsed.kit || {};
-  const real = parsed.real || {};
-  const kitDims = { length: num(kit.length), width: num(kit.width), height: num(kit.height) };
-  const realDims = { length: num(real.length), width: num(real.width), height: num(real.height) };
-  const hasKit = Object.values(kitDims).some(Boolean);
-  const hasReal = Object.values(realDims).some(Boolean);
-  const toMm = (m) => (m && denom ? Math.round((m * 1000 * 10) / denom) / 10 : null);
-  const LABEL = { length: '전장', width: '전폭', height: '전고' };
-
-  if (!hasKit && !hasReal) throw new Error('킷 크기와 실물 크기를 모두 찾지 못했습니다. 직접 입력해주세요.');
-  if (!hasKit && !denom) {
-    throw new Error(
-      `킷 크기는 찾지 못했고, 실물 크기(${real.name || '실물'})는 찾았지만 스케일이 없어 환산할 수 없습니다. 스케일을 먼저 입력해주세요.`,
-    );
-  }
-
-  // 킷 상품정보 값을 우선 쓰고, 빠진 항목만 실물 크기 ÷ 스케일로 채움
-  const out = {};
-  const calcKeys = [];
-  for (const k of ['length', 'width', 'height']) {
-    if (kitDims[k]) out[k] = kitDims[k];
-    else if (realDims[k] && denom) {
-      out[k] = toMm(realDims[k]);
-      calcKeys.push(k);
-    } else out[k] = null;
-  }
-  const source = calcKeys.length === 0 ? 'kit' : hasKit ? 'mixed' : 'calculated';
-  const calcNote = calcKeys.length
-    ? `${real.name || '실물'} ${calcKeys.map((k) => `${LABEL[k]} ${realDims[k]}m`).join(', ')} ÷ ${denom}`
-    : '';
-  const note = [calcNote, parsed.note].filter(Boolean).join(', ');
-  return { ...out, source, calcKeys, note, real, sources };
+  return combineDims(parsed, scale, sources);
 }
 
-export async function searchKitInfo(manufacturer, query) {
+export async function searchKitInfoGrounded(manufacturer, query) {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('Gemini API 키가 설정되지 않았습니다. .env의 VITE_GEMINI_API_KEY를 확인해주세요.');
