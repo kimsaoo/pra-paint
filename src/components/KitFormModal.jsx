@@ -37,7 +37,7 @@ export const emptyKitForm = {
   figureStatus: '',
   paintAfterAssembly: '',
   special: '',
-  buildLocation: '',
+  buildLocation: '집', // 신규 킷 기본 위치
   status: '제작계획',
   importCheck: [],
 };
@@ -100,7 +100,7 @@ function AutoTag({ on }) {
 
 export default function KitFormModal({ form, setForm, kitManufacturers, kits = [], sourceKit, onCancel, onSave, onDelete, isNew }) {
   const [dimLoading, setDimLoading] = useState(false);
-  const [dimNote, setDimNote] = useState('');
+  const [dimInfo, setDimInfo] = useState(null); // { text, sources }
   const [infoQuery, setInfoQuery] = useState('');
   const [infoLoading, setInfoLoading] = useState(false);
   const [infoResult, setInfoResult] = useState(null); // { filled: [], kept: [], notes: [], sources: [] }
@@ -108,6 +108,16 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
   const [copyFromId, setCopyFromId] = useState('');
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
+
+  function describeDims(result) {
+    const label =
+      result.source === 'kit'
+        ? '킷 상품정보 기준'
+        : result.source === 'mixed'
+          ? '킷 상품정보 기준, 빠진 항목은 실물 크기를 스케일로 환산'
+          : '실물 크기를 스케일로 환산';
+    return { text: `${label}${result.note ? `: ${result.note}` : ''}`, sources: result.sources || [] };
+  }
 
   function setProductType(pt) {
     setForm((f) => ({
@@ -180,12 +190,28 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
       }
       const d = r.dimensions || {};
       const dims = { ...form.dimensions };
-      for (const [k, label] of [['length', '길이'], ['width', '너비'], ['height', '높이']]) {
-        if (d[k] == null) continue;
-        if (String(dims[k] || '').trim() === '') {
-          dims[k] = String(d[k]);
-          filled.push(`${label}: ${d[k]}mm`);
-          newAuto.add(`dim_${k}`);
+      const DIM_LABEL = { length: '길이', width: '너비', height: '높이' };
+      const fillDims = (src) => {
+        for (const k of ['length', 'width', 'height']) {
+          if (src[k] == null) continue;
+          if (String(dims[k] || '').trim() === '') {
+            dims[k] = String(src[k]);
+            filled.push(`${DIM_LABEL[k]}: ${src[k]}mm${src.calcKeys?.includes(k) ? ' (실물 환산)' : ''}`);
+            newAuto.add(`dim_${k}`);
+          }
+        }
+      };
+      fillDims(d);
+      // 킷 정보에 크기가 없으면 크기 전용 조사(킷 크기 → 없으면 실물 크기 ÷ 스케일)로 이어서 시도
+      const dimsMissing = ['length', 'width', 'height'].some((k) => String(dims[k] || '').trim() === '');
+      if (dimsMissing) {
+        const eff = { ...form, ...patch };
+        try {
+          const dr = await searchKitDimensions(eff.manufacturer, eff.name || q, eff.scale);
+          fillDims(dr);
+          setDimInfo(describeDims(dr));
+        } catch (e) {
+          notes.push(`크기: ${e.message}`);
         }
       }
       patch.dimensions = dims;
@@ -204,23 +230,25 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
 
   async function autoFillDimensions() {
     if (!form.name.trim()) {
-      alert('제품명을 먼저 입력해주세요.');
+      alert('품명을 먼저 입력해주세요.');
       return;
     }
+    const hasAny = ['length', 'width', 'height'].some((k) => String(form.dimensions[k] || '').trim() !== '');
+    if (hasAny && !confirm('이미 입력된 크기가 있습니다. 조사 결과로 덮어쓸까요?')) return;
     setDimLoading(true);
-    setDimNote('');
+    setDimInfo(null);
     try {
       const result = await searchKitDimensions(form.manufacturer, form.name, form.scale);
       setForm((f) => ({
         ...f,
         dimensions: {
-          width: result.width != null ? String(result.width) : f.dimensions.width,
           length: result.length != null ? String(result.length) : f.dimensions.length,
+          width: result.width != null ? String(result.width) : f.dimensions.width,
           height: result.height != null ? String(result.height) : f.dimensions.height,
         },
       }));
-      const sourceLabel = result.source === 'kit' ? '킷 상품정보 기준' : '실물 크기를 스케일로 환산';
-      setDimNote(`${sourceLabel}${result.note ? ` — ${result.note}` : ''} (검색 결과이니 확인해주세요)`);
+      setAutoFields((prev) => new Set([...prev, 'dim_length', 'dim_width', 'dim_height']));
+      setDimInfo(describeDims(result));
     } catch (err) {
       console.error(err);
       alert(err.message || '크기 조사 중 오류가 발생했습니다.');
@@ -292,7 +320,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
                 {infoLoading ? '검색 중...' : '🔎 자동입력'}
               </button>
             </div>
-            <div className="text-faint mt-4">제조사를 먼저 고르면 더 정확합니다. 비어 있는 칸만 채우고, 입력한 값은 바꾸지 않습니다.</div>
+            <div className="text-faint mt-4">제조사를 먼저 고르면 더 정확합니다. 비어 있는 칸만 채우고, 입력한 값은 바꾸지 않습니다. 크기는 킷 정보에 없으면 실물 크기를 스케일로 환산해 채웁니다.</div>
             {infoResult && (
               <div className="text-faint mt-4" style={{ fontSize: 12 }}>
                 {infoResult.filled.length > 0 ? <div>채움: {infoResult.filled.join(', ')}</div> : <div>새로 채운 항목이 없습니다.</div>}
@@ -426,9 +454,26 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
               <input value={form.dimensions.height} onChange={(e) => setDim('height', e.target.value)} placeholder="높이" inputMode="decimal" />
             </div>
             <button className="btn sm" onClick={autoFillDimensions} disabled={dimLoading}>
-              {dimLoading ? '조사 중...' : '🔍 크기만 자동 입력 (실물 크기 환산 포함)'}
+              {dimLoading ? '크기 조사 중...' : '📏 크기 자동 입력'}
             </button>
-            {dimNote && <div className="text-faint mt-4">{dimNote}</div>}
+            <div className="text-faint mt-4">
+              킷 상품정보의 완성 크기를 먼저 찾고, 없으면 실물 크기를 찾아 스케일로 나눠 계산합니다. 스케일을 먼저 입력하세요.
+            </div>
+            {dimInfo && (
+              <div className="text-faint mt-4" style={{ fontSize: 12 }}>
+                <div>{dimInfo.text} (검색 결과이니 확인해주세요)</div>
+                {dimInfo.sources.length > 0 && (
+                  <div>
+                    출처:{' '}
+                    {dimInfo.sources.map((src, i) => (
+                      <a key={src.uri} href={src.uri} target="_blank" rel="noreferrer" style={{ marginRight: 6 }}>
+                        [{i + 1}] {src.title}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </Section>
 
