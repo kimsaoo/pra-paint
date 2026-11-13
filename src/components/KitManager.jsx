@@ -3,7 +3,8 @@ import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, AcquiredBadge, PaintCap, SimilarTooltip, WishlistToggle, ColorSwatch } from './Common';
 import PaintEditModal from './PaintEditModal';
 import ImagePaintImport from './ImagePaintImport';
-import KitFormModal, { emptyKitForm, kitFormFromKit } from './KitFormModal';
+import KitFormModal, { emptyKitForm, newKitForm, kitFormFromKit, kitDataFromForm } from './KitFormModal';
+import { KIT_STATUSES, PRODUCT_TYPES, BUILD_LOCATIONS, normalizeKitStatus } from '../lib/constants';
 import { getSimilarPaints } from '../lib/matching';
 
 export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
@@ -19,8 +20,16 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
   // 모달에 즉시 반영됨 (유사도료 검증/삭제 버튼이 반응 없는 것처럼 보이던 문제 수정)
   const editingPaint = editingPaintId ? byId.get(editingPaintId) || null : null;
 
+  // 목록 필터와 정렬
+  const [statusFilter, setStatusFilter] = useState('제작계획');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [locFilter, setLocFilter] = useState('');
+  const [onlyCheck, setOnlyCheck] = useState(false);
+  const [textFilter, setTextFilter] = useState('');
+  const [sortKey, setSortKey] = useState('priority');
+
   function openNewKit() {
-    setKitForm(emptyKitForm);
+    setKitForm(newKitForm());
     setEditingKit('new');
   }
   function openEditKit(kit) {
@@ -29,9 +38,9 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
   }
   async function saveKit() {
     if (!kitForm.name.trim() || !kitForm.manufacturer || !kitForm.productType) return;
-    const { scaleCustom, ...data } = kitForm; // scaleCustom은 UI 상태일 뿐 저장 안 함
+    const data = kitDataFromForm(kitForm); // scaleCustom 등 UI 상태 제거, 숫자 칸 변환
     if (editingKit === 'new') {
-      await addItem('kits', { ...data, name: kitForm.name.trim(), order: kits.length });
+      await addItem('kits', { ...data, order: kits.length });
     } else {
       await updateItem('kits', editingKit.id, data);
     }
@@ -81,15 +90,75 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
     setAddMode(null);
   }
 
-  const sortedKits = [...kits].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const statusCounts = KIT_STATUSES.reduce((m, st) => ((m[st] = kits.filter((k) => normalizeKitStatus(k.status) === st).length), m), {});
+  const checkCount = kits.filter((k) => k.importCheck?.length).length;
+
+  const numOr = (v, d) => (typeof v === 'number' && !isNaN(v) ? v : d);
+  const sorters = {
+    priority: (a, b) => numOr(a.priority, 9999) - numOr(b.priority, 9999) || (a.order ?? 0) - (b.order ?? 0),
+    purchaseDesc: (a, b) => String(b.purchaseDate || '').localeCompare(String(a.purchaseDate || '')),
+    purchaseAsc: (a, b) => String(a.purchaseDate || '').localeCompare(String(b.purchaseDate || '')),
+    difficulty: (a, b) => numOr(a.difficulty, 9999) - numOr(b.difficulty, 9999),
+    name: (a, b) => a.name.localeCompare(b.name),
+  };
+  const q = textFilter.trim().toLowerCase();
+  const sortedKits = kits
+    .filter((k) => !statusFilter || normalizeKitStatus(k.status) === statusFilter)
+    .filter((k) => !typeFilter || k.productType === typeFilter)
+    .filter((k) => !locFilter || k.buildLocation === locFilter)
+    .filter((k) => !onlyCheck || k.importCheck?.length)
+    .filter((k) => !q || [k.name, k.manufacturer, k.genreDetail, k.country].some((v) => String(v || '').toLowerCase().includes(q)))
+    .sort(sorters[sortKey]);
 
   return (
     <div>
       <div className="flex-between">
-        <div className="section-title">🏍️ 킷 관리 ({kits.length})</div>
+        <div className="section-title">🏍️ 킷 관리 ({sortedKits.length}/{kits.length})</div>
         <button className="btn primary sm" onClick={openNewKit}>
           + 킷 추가
         </button>
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '6px 0' }}>
+        {KIT_STATUSES.map((st) => (
+          <button key={st} className={`filter-chip ${statusFilter === st ? 'active' : ''}`} onClick={() => setStatusFilter(st)}>
+            {st} {statusCounts[st]}
+          </button>
+        ))}
+        <button className={`filter-chip ${statusFilter === '' ? 'active' : ''}`} onClick={() => setStatusFilter('')}>
+          전체 {kits.length}
+        </button>
+        {checkCount > 0 && (
+          <button className={`filter-chip ${onlyCheck ? 'active' : ''}`} onClick={() => setOnlyCheck(!onlyCheck)}>
+            ⚠ 확인 필요 {checkCount}
+          </button>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+        <input style={{ flex: '1 1 140px' }} value={textFilter} onChange={(e) => setTextFilter(e.target.value)} placeholder="품명, 제조사, 장르 상세, 국가 검색" />
+        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+          <option value="">장르 전체</option>
+          {PRODUCT_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <select value={locFilter} onChange={(e) => setLocFilter(e.target.value)}>
+          <option value="">위치 전체</option>
+          {BUILD_LOCATIONS.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+        <select value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
+          <option value="priority">우선순</option>
+          <option value="purchaseDesc">최근 구매순</option>
+          <option value="purchaseAsc">오래된 구매순</option>
+          <option value="difficulty">난이도 낮은순</option>
+          <option value="name">이름순</option>
+        </select>
       </div>
 
       {sortedKits.map((kit) => {
@@ -100,17 +169,25 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
             <div className="flex-between" onClick={() => setExpandedKitId(isExpanded ? null : kit.id)} style={{ cursor: 'pointer' }}>
               <div>
                 <div className="code-text" style={{ fontSize: 14 }}>
+                  {kit.importCheck?.length > 0 && <span title={kit.importCheck.join('\n')}>⚠ </span>}
                   {kit.name}
                 </div>
                 <div className="text-faint mt-4" style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                   {kit.manufacturer && (
                     <PaintCap manufacturer={kit.manufacturer} iconUrl={kitIconByManufacturer.get(kit.manufacturer)} />
                   )}
-                  {kit.manufacturer} · {kit.productType}
-                  {kit.scale && ` · ${kit.scale}`}
-                  {kit.country && ` · ${kit.country}`}
-                  {kit.status && ` · ${kit.status}`}
-                  {' · 도료 '}{links.length}개
+                  {[
+                    kit.manufacturer,
+                    kit.genreDetail || kit.productType,
+                    kit.scale,
+                    kit.country,
+                    kit.buildLocation,
+                    normalizeKitStatus(kit.status),
+                    typeof kit.priority === 'number' ? `우선 ${kit.priority}` : '',
+                    `도료 ${links.length}개`,
+                  ]
+                    .filter(Boolean)
+                    .join(' / ')}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -229,6 +306,8 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
           form={kitForm}
           setForm={setKitForm}
           kitManufacturers={kitManufacturers}
+          kits={kits}
+          sourceKit={editingKit === 'new' ? null : editingKit}
           isNew={editingKit === 'new'}
           onCancel={() => setEditingKit(null)}
           onSave={saveKit}

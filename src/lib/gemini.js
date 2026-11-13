@@ -138,3 +138,66 @@ export async function searchKitDimensions(manufacturer, kitName, scale) {
   }
   return parsed;
 }
+
+/**
+ * 키트 정보 자동입력: 제조사 + 품번 또는 품명으로 Scalemates, 제조사 공식 페이지 등을 검색해
+ * 확인되는 항목만 채운다. 검색 근거가 없는 값은 null로 받도록 지시(추측 금지).
+ * 반환: { fields: {...}, sources: [{title, uri}] }
+ */
+export async function searchKitInfo(manufacturer, query) {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('Gemini API 키가 설정되지 않았습니다. .env의 VITE_GEMINI_API_KEY를 확인해주세요.');
+  }
+  if (!query?.trim()) throw new Error('품번 또는 품명을 먼저 입력해주세요.');
+
+  const prompt = `프라모델 키트 "${manufacturer || ''} ${query}"의 정보를 웹에서 검색해줘.
+우선 scalemates.com의 해당 키트 페이지를 찾고, 없으면 제조사 공식 사이트나 판매처 상품 페이지를 사용해.
+검색 결과에서 확인되는 값만 채우고, 확인되지 않는 값은 반드시 null로 둬. 추측하거나 일반 상식으로 채우지 마.
+반드시 아래 JSON 형식으로만 응답하고 다른 텍스트는 포함하지 마:
+{
+  "name": "키트 공식 명칭(박스 표기, 영문 그대로)",
+  "kitNumber": "제조사 품번 또는 null",
+  "manufacturer": "제조사명 또는 null",
+  "scale": "예: 1/35 또는 null",
+  "productType": "AFV, AUTO, BIKE, SHIP, AERO 중 하나 또는 null (전차/장갑차/군용차량/자주포/트럭은 AFV)",
+  "genreDetail": "한국어 분류 예: 2차대전 중형전차, 현용 3세대 MBT, 현용 소형전술차량, 슈퍼카, 경주용 바이크 또는 null",
+  "country": "재현 대상의 운용국을 한국어로 예: 독일, 미국, 러시아, 이스라엘 또는 null",
+  "figureIncluded": true 또는 false 또는 null,
+  "figureNote": "포함된 피규어 설명(예: 전차병 2체) 또는 null",
+  "dimensions": {"length": 숫자또는null, "width": 숫자또는null, "height": 숫자또는null},
+  "releaseYear": 숫자 또는 null,
+  "note": "어디서 확인했는지 한 줄"
+}
+dimensions는 완성 크기(mm)가 검색 결과에 명시된 경우에만 채워.`;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${SEARCH_MODEL}:generateContent?key=${apiKey}`;
+  const body = {
+    contents: [{ parts: [{ text: prompt }] }],
+    tools: [{ google_search: {} }],
+    generationConfig: { temperature: 0.1 },
+  };
+  const res = await fetchWithRetry(url, body);
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, SEARCH_MODEL));
+    throw new Error(`Gemini API 오류 (${res.status}): ${errText.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  const cand = data?.candidates?.[0];
+  const text = cand?.content?.parts?.map((p) => p.text).filter(Boolean).join('') || '';
+  const match = text.replace(/```json|```/g, '').match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('키트 정보를 찾지 못했습니다. 품번이나 품명을 바꿔서 다시 시도해주세요.');
+  let fields;
+  try {
+    fields = JSON.parse(match[0]);
+  } catch {
+    throw new Error('응답 형식을 해석하지 못했습니다. 다시 시도해주세요.');
+  }
+  const sources = (cand?.groundingMetadata?.groundingChunks || [])
+    .map((c) => c.web)
+    .filter((w) => w?.uri)
+    .slice(0, 5)
+    .map((w) => ({ title: w.title || w.uri, uri: w.uri }));
+  return { fields, sources };
+}

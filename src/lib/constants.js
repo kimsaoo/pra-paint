@@ -23,28 +23,32 @@ export const RECOMMENDED_KIT_MANUFACTURERS = [
   'Aoshima', 'Fujimi', 'Revell', 'NuNu', 'Beemax',
   // SHIP
   'Flyhawk', 'Very Fire',
+  // 프라목록관리.xlsx 이관 시 확인된 제조사
+  'Tiger Model', 'Asuka', 'Tristar', 'Gecko Models', 'Lanmo', 'Mirage', 'Vespid',
 ];
 
 export const PAINT_TYPES = [
   '락커스프레이', '아크릴스프레이', '에나멜', '아크릴', '락커(병)', '기타',
 ];
 
-export const PRODUCT_TYPES = ['AFV', 'AUTO', 'BIKE', 'SHIP'];
+export const PRODUCT_TYPES = ['AFV', 'AUTO', 'BIKE', 'SHIP', 'AERO'];
 
-// 제품타입별 운용국가 후보
-export const PRODUCT_TYPE_COUNTRIES = {
-  AFV: ['미국', '독일', '소련/러시아', '영국', '일본', '프랑스', '이탈리아', '이스라엘', '기타'],
-  AUTO: ['독일', '이탈리아', '영국', '미국', '일본', '프랑스', '한국', '기타'],
-  BIKE: ['일본', '이탈리아', '미국', '독일', '오스트리아', '기타'],
-  SHIP: ['미국', '일본', '영국', '독일', '소련/러시아', '프랑스', '기타'],
-};
+// 국가는 자유 입력. 아래는 입력칸 추천 목록 (프라목록관리.xlsx 제작계획/제작완료에서 쓰인 국가 포함)
+export const COUNTRY_SUGGESTIONS = [
+  '미국', '독일', '러시아', '영국', '일본', '프랑스', '이탈리아', '이스라엘', '한국',
+  '중국', '대만', '체코', '폴란드', '불가리아', '크로아티아', '멕시코', '오스트리아', '기타',
+];
 
 export const SCALE_PRESETS = ['1/35', '1/24', '1/12', '1/350'];
 export const DEFAULT_SCALE_BY_TYPE = { AFV: '1/35', AUTO: '1/24', BIKE: '1/12', SHIP: '1/350' };
 
 export const SIZE_CLASSES = ['대', '중', '소'];
 export const BUILD_LOCATIONS = ['집', '본가'];
-export const KIT_STATUSES = ['대기', '작업중', '완료'];
+export const KIT_STATUSES = ['제작계획', '작업중', '제작완료'];
+// 이전 상태값 호환 (이관 스크립트가 DB도 변환하지만, 화면에서도 안전하게 읽기)
+export const LEGACY_KIT_STATUS = { 대기: '제작계획', 완료: '제작완료' };
+export const normalizeKitStatus = (s) => LEGACY_KIT_STATUS[s] || s || '제작계획';
+export const FIGURE_STATUSES = ['O', '△', 'X', '불요'];
 
 // 기존 5개 킷 마이그레이션용 초기값 (제조사/타입 지정 필요해서 임의 배정 — 필요시 킷관리에서 수정)
 export const DEFAULT_KITS = [
@@ -76,6 +80,8 @@ const BRAND_COLORS = {
   'Das Werk': '#3A3A3A', MiniArt: '#A0522D', ICM: '#1F5F9F', Zvezda: '#B22222',
   'Amusing Hobby': '#6A5ACD', Eduard: '#C77B30', Aoshima: '#1E6FA8', Fujimi: '#B8860B',
   NuNu: '#D2691E', Beemax: '#4682B4', Flyhawk: '#2F6F6F', 'Very Fire': '#C1440E',
+  'Tiger Model': '#B8741A', Asuka: '#5B7F95', Tristar: '#7A4E8C', 'Gecko Models': '#4E8C5B',
+  Lanmo: '#8C6E4E', Mirage: '#6E7E8C', Vespid: '#A88A2E',
 };
 export function brandColorVar(manufacturer) {
   return BRAND_COLORS[manufacturer] || BRAND_COLORS['기타'];
@@ -92,7 +98,8 @@ const BRAND_INITIALS = {
   Trumpeter: 'TR', HobbyBoss: 'HB', 'Rye Field Model': 'RFM', 'Border Model': 'BM',
   'Das Werk': 'DW', MiniArt: 'MA', ICM: 'ICM', Zvezda: 'ZV', 'Amusing Hobby': 'AH',
   Eduard: 'ED', Aoshima: 'AO', Fujimi: 'FJ', NuNu: 'NU', Beemax: 'BX', Flyhawk: 'FH',
-  'Very Fire': 'VF',
+  'Very Fire': 'VF', 'Tiger Model': 'TM', Asuka: 'AS', Tristar: 'TS', 'Gecko Models': 'GK',
+  Lanmo: 'LM', Mirage: 'MR', Vespid: 'VS',
 };
 export function brandInitials(manufacturer) {
   if (BRAND_INITIALS[manufacturer]) return BRAND_INITIALS[manufacturer];

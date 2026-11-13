@@ -4,3 +4,5 @@ dist
 .env.local
 *.log
 .DS_Store
+# 시트 이관용 변환 데이터 (개인 킷 목록, 커밋 금지)
+kits_import_*.json
