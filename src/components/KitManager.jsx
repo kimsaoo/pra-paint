@@ -7,6 +7,8 @@ import KitFormModal, { emptyKitForm, newKitForm, kitFormFromKit, kitDataFromForm
 import { KIT_STATUSES, PRODUCT_TYPES, BUILD_LOCATIONS, normalizeKitStatus } from '../lib/constants';
 import { getSimilarPaints } from '../lib/matching';
 
+const STATUS_CLASS = { 제작계획: 'plan', 작업중: 'wip', 제작완료: 'done' };
+
 export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
   const iconByManufacturer = new Map(paintManufacturers.map((m) => [m.name, m.iconUrl]));
   const kitIconByManufacturer = new Map(kitManufacturers.map((m) => [m.name, m.iconUrl]));
@@ -90,6 +92,18 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
     setAddMode(null);
   }
 
+  function acquisitionOf(links) {
+    let ok = 0;
+    let total = 0;
+    for (const l of links) {
+      const p = byId.get(l.paintId);
+      if (!p) continue;
+      total++;
+      if (p.owned || getSimilarPaints(p, byId).some((x) => x.owned)) ok++;
+    }
+    return { ok, total };
+  }
+
   const statusCounts = KIT_STATUSES.reduce((m, st) => ((m[st] = kits.filter((k) => normalizeKitStatus(k.status) === st).length), m), {});
   const checkCount = kits.filter((k) => k.importCheck?.length).length;
 
@@ -119,23 +133,21 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '6px 0' }}>
+      <div className="kit-summary">
         {KIT_STATUSES.map((st) => (
-          <button key={st} className={`filter-chip ${statusFilter === st ? 'active' : ''}`} onClick={() => setStatusFilter(st)}>
-            {st} {statusCounts[st]}
+          <button key={st} className={`kit-stat ${statusFilter === st ? 'active' : ''}`} onClick={() => setStatusFilter(st)}>
+            <span className="kit-stat-label">{st}</span>
+            <span className="kit-stat-num">{statusCounts[st]}</span>
           </button>
         ))}
-        <button className={`filter-chip ${statusFilter === '' ? 'active' : ''}`} onClick={() => setStatusFilter('')}>
-          전체 {kits.length}
+        <button className={`kit-stat ${statusFilter === '' ? 'active' : ''}`} onClick={() => setStatusFilter('')}>
+          <span className="kit-stat-label">전체</span>
+          <span className="kit-stat-num">{kits.length}</span>
         </button>
-        {checkCount > 0 && (
-          <button className={`filter-chip ${onlyCheck ? 'active' : ''}`} onClick={() => setOnlyCheck(!onlyCheck)}>
-            ⚠ 확인 필요 {checkCount}
-          </button>
-        )}
       </div>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-        <input style={{ flex: '1 1 140px' }} value={textFilter} onChange={(e) => setTextFilter(e.target.value)} placeholder="품명, 제조사, 장르 상세, 국가 검색" />
+
+      <div className="kit-toolbar">
+        <input value={textFilter} onChange={(e) => setTextFilter(e.target.value)} placeholder="품명, 제조사, 장르 상세, 국가" />
         <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
           <option value="">장르 전체</option>
           {PRODUCT_TYPES.map((t) => (
@@ -159,54 +171,89 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
           <option value="difficulty">난이도 낮은순</option>
           <option value="name">이름순</option>
         </select>
+        {checkCount > 0 && (
+          <button className={`filter-chip ${onlyCheck ? 'active' : ''}`} onClick={() => setOnlyCheck(!onlyCheck)}>
+            ⚠ 확인 필요 {checkCount}
+          </button>
+        )}
       </div>
 
+      {sortedKits.length === 0 && <div className="empty-state">조건에 맞는 킷이 없습니다. 필터를 바꾸거나 새 킷을 추가하세요.</div>}
+
+      <div className="kit-list">
       {sortedKits.map((kit) => {
         const links = linksForKit(kit.id);
         const isExpanded = expandedKitId === kit.id;
+        const acq = acquisitionOf(links);
+        const st = normalizeKitStatus(kit.status);
+        const meta = [
+          [kit.manufacturer, kit.scale].filter(Boolean).join(' '),
+          kit.country,
+          kit.genreDetail || kit.productType,
+        ].filter(Boolean);
         return (
-          <div className="card" key={kit.id}>
-            <div className="flex-between" onClick={() => setExpandedKitId(isExpanded ? null : kit.id)} style={{ cursor: 'pointer' }}>
-              <div>
-                <div className="code-text" style={{ fontSize: 14 }}>
-                  {kit.importCheck?.length > 0 && <span title={kit.importCheck.join('\n')}>⚠ </span>}
-                  {kit.name}
+          <div className={`kit-card ${isExpanded ? 'expanded' : ''}`} key={kit.id}>
+            <div className="kit-card-main" onClick={() => setExpandedKitId(isExpanded ? null : kit.id)}>
+              <div className={`kit-prio ${typeof kit.priority === 'number' ? '' : 'none'}`} title="우선순위">
+                <small>우선</small>
+                <b>{typeof kit.priority === 'number' ? kit.priority : '-'}</b>
+              </div>
+              <div className="kit-body">
+                <div className="kit-title-row">
+                  <div className="kit-title">{kit.name}</div>
+                  <span className={`status-badge ${STATUS_CLASS[st] || 'plan'}`}>{st}</span>
                 </div>
-                <div className="text-faint mt-4" style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <div className="kit-meta">
                   {kit.manufacturer && (
                     <PaintCap manufacturer={kit.manufacturer} iconUrl={kitIconByManufacturer.get(kit.manufacturer)} />
                   )}
-                  {[
-                    kit.manufacturer,
-                    kit.genreDetail || kit.productType,
-                    kit.scale,
-                    kit.country,
-                    kit.buildLocation,
-                    normalizeKitStatus(kit.status),
-                    typeof kit.priority === 'number' ? `우선 ${kit.priority}` : '',
-                    `도료 ${links.length}개`,
-                  ]
-                    .filter(Boolean)
-                    .join(' / ')}
+                  {meta.map((m, i) => (
+                    <span key={i}>
+                      {i > 0 && <span className="sep">/ </span>}
+                      {m}
+                    </span>
+                  ))}
+                </div>
+                <div className="kit-foot">
+                  {acq.total > 0 ? (
+                    <div className="acq" title="본인 보유 또는 유사도료 보유 기준">
+                      <div className="acq-track">
+                        <div className={`acq-fill ${acq.ok < acq.total ? 'partial' : ''}`} style={{ width: `${(acq.ok / acq.total) * 100}%` }} />
+                      </div>
+                      <span className="acq-label">
+                        도료 확보 {acq.ok}/{acq.total}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="acq">
+                      <span className="status-badge warn">도료 미등록</span>
+                    </span>
+                  )}
+                  {kit.importCheck?.length > 0 && (
+                    <span className="status-badge warn" title={kit.importCheck.join('\n')}>
+                      ⚠ 확인 필요
+                    </span>
+                  )}
+                  {kit.buildLocation && <span>📍 {kit.buildLocation}</span>}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <button className="icon-btn" onClick={(e) => { e.stopPropagation(); openEditKit(kit); }}>
+              <div className="kit-actions">
+                <button className="icon-btn" aria-label="킷 수정" onClick={(e) => { e.stopPropagation(); openEditKit(kit); }}>
                   ✏️
                 </button>
-                <span className="icon-btn">{isExpanded ? '▲' : '▼'}</span>
+                <span className="icon-btn" aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
               </div>
             </div>
 
             {isExpanded && (
-              <div className="mt-8">
+              <div className="kit-detail">
                 {links.length === 0 && <div className="text-faint mt-4">아직 등록된 도료가 없습니다</div>}
                 {links.map((link) => {
                   const p = byId.get(link.paintId);
                   if (!p) return null;
                   const similar = getSimilarPaints(p, byId);
                   return (
-                    <div className="flex-between mt-4" key={link.id}>
+                    <div className="kit-paint-row" key={link.id}>
                       <div
                         style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', cursor: 'pointer' }}
                         onClick={() => setEditingPaintId(p.id)}
@@ -289,6 +336,8 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
           </div>
         );
       })}
+
+      </div>
 
       {editingPaint && (
         <PaintEditModal

@@ -85,17 +85,17 @@ export function kitDataFromForm(form) {
 // 유사 킷 복사 시 가져오는 항목 (분류 정보만. 품명, 구매일, 계획 관련 항목은 제외)
 const COPY_FIELDS = ['manufacturer', 'productType', 'genreDetail', 'country', 'scale', 'sizeClass', 'buildLocation', 'paintAfterAssembly'];
 
-function Section({ title, children }) {
+function Section({ title, children, defaultOpen = true }) {
   return (
-    <div style={{ borderTop: '1px solid var(--border, #ddd)', paddingTop: 10, marginTop: 6 }}>
-      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>{title}</div>
-      {children}
-    </div>
+    <details className="form-section" open={defaultOpen}>
+      <summary>{title}</summary>
+      <div className="form-grid">{children}</div>
+    </details>
   );
 }
 
 function AutoTag({ on }) {
-  return on ? <span className="text-faint" style={{ fontSize: 11, marginLeft: 6 }}>자동</span> : null;
+  return on ? <span className="auto-tag">자동</span> : null;
 }
 
 export default function KitFormModal({ form, setForm, kitManufacturers, kits = [], sourceKit, onCancel, onSave, onDelete, isNew }) {
@@ -237,8 +237,8 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
         <div className="modal-title">{isNew ? '킷 추가' : '킷 수정'}</div>
 
         {form.importCheck?.length > 0 && (
-          <div className="card" style={{ background: 'rgba(255, 193, 7, 0.12)', marginBottom: 10 }}>
-            <div style={{ fontWeight: 600, fontSize: 13 }}>⚠ 시트 이관 확인 필요</div>
+          <div className="notice-warn">
+            <div style={{ fontWeight: 600 }}>⚠ 시트 이관 확인 필요</div>
             <ul style={{ margin: '6px 0', paddingLeft: 18, fontSize: 12 }}>
               {form.importCheck.map((c) => (
                 <li key={c}>{c}</li>
@@ -261,9 +261,9 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
           </div>
         )}
 
-        <Section title="1. 키트 정보 (자동입력 가능)">
+        <Section title="키트 정보">
           {isNew && kits.length > 0 && (
-            <div className="field-group">
+            <div className="field-group span-2">
               <label>비슷한 킷에서 복사</label>
               <select value={copyFromId} onChange={(e) => copyFromKit(e.target.value)}>
                 <option value="">선택 안 함</option>
@@ -279,8 +279,8 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
             </div>
           )}
 
-          <div className="field-group">
-            <label>품번 또는 품명으로 검색</label>
+          <div className="field-group span-2 lookup-box">
+            <label>🔎 품번 또는 품명으로 키트 정보 검색</label>
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 style={{ flex: 1 }}
@@ -329,7 +329,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
             </select>
           </div>
 
-          <div className="field-group">
+          <div className="field-group span-2">
             <label>
               품명 *<AutoTag on={has('name')} />
             </label>
@@ -415,7 +415,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
             </select>
           </div>
 
-          <div className="field-group">
+          <div className="field-group span-2">
             <label>
               완성 크기 (mm)
               <AutoTag on={has('dim_length') || has('dim_width') || has('dim_height')} />
@@ -432,23 +432,21 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
           </div>
         </Section>
 
-        <Section title="2. 제작 계획">
-          <div style={{ display: 'flex', gap: 8 }}>
-            <div className="field-group" style={{ flex: 1 }}>
-              <label>구매일</label>
-              <input value={form.purchaseDate} onChange={(e) => set({ purchaseDate: e.target.value })} placeholder="YYYY.MM.DD" />
-            </div>
-            <div className="field-group" style={{ flex: 1 }}>
-              <label>우선</label>
-              <input value={form.priority} onChange={(e) => set({ priority: e.target.value })} inputMode="numeric" />
-            </div>
-            <div className="field-group" style={{ flex: 1 }}>
-              <label>난이도</label>
-              <input value={form.difficulty} onChange={(e) => set({ difficulty: e.target.value })} inputMode="numeric" />
-            </div>
+        <Section title="제작 계획" >
+          <div className="field-group span-2">
+            <label>구매일</label>
+            <input value={form.purchaseDate} onChange={(e) => set({ purchaseDate: e.target.value })} placeholder="YYYY.MM.DD" />
+          </div>
+          <div className="field-group">
+            <label>우선</label>
+            <input value={form.priority} onChange={(e) => set({ priority: e.target.value })} inputMode="numeric" />
+          </div>
+          <div className="field-group">
+            <label>난이도</label>
+            <input value={form.difficulty} onChange={(e) => set({ difficulty: e.target.value })} inputMode="numeric" />
           </div>
 
-          <div className="field-group">
+          <div className="field-group span-2">
             <label>선택Type (도색, 마킹)</label>
             <textarea rows={2} value={form.markingChoice} onChange={(e) => set({ markingChoice: e.target.value })} />
           </div>
@@ -476,13 +474,13 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
             <input value={form.paintAfterAssembly} onChange={(e) => set({ paintAfterAssembly: e.target.value })} placeholder="예: O (휠과 일부만도색)" />
           </div>
 
-          <div className="field-group">
+          <div className="field-group span-2">
             <label>현시점 기준 특이성</label>
             <input value={form.special} onChange={(e) => set({ special: e.target.value })} />
           </div>
         </Section>
 
-        <Section title="3. 보관 및 상태">
+        <Section title="보관 및 상태">
           <div className="field-group">
             <label>위치</label>
             <select value={form.buildLocation} onChange={(e) => set({ buildLocation: e.target.value })}>
