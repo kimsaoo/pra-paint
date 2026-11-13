@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { brandColorVar, brandInitials } from '../lib/constants';
 import { approximateColorFromName } from '../lib/colorWords';
+import { Check, X, ShoppingBag } from 'lucide-react';
 
 export function BrandChip({ manufacturer, children }) {
   return (
@@ -26,9 +27,9 @@ export function OwnedBadge({ owned }) {
 export function AcquiredBadge({ paint, similarPaints = [] }) {
   const acquired = !!paint?.owned || similarPaints.some((s) => s.owned);
   return acquired ? (
-    <span className="badge owned" title="본인 또는 유사도료 보유">✔ 확보</span>
+    <span className="badge owned" title="본인 또는 유사도료 보유"><Check size={12} className="ico" aria-hidden="true" />확보</span>
   ) : (
-    <span className="badge missing" title="본인/유사도료 모두 미보유">✖ 미확보</span>
+    <span className="badge missing" title="본인/유사도료 모두 미보유"><X size={12} className="ico" aria-hidden="true" />미확보</span>
   );
 }
 
@@ -71,7 +72,7 @@ export function WishlistToggle({ paint, onToggle }) {
       }}
       title={wishlisted ? '위시리스트에서 빼기' : '위시리스트에 담기'}
     >
-      {wishlisted ? '🛒 담김' : '🛒 담기'}
+      <ShoppingBag size={13} className="ico" aria-hidden="true" />{wishlisted ? '담김' : '담기'}
     </button>
   );
 }

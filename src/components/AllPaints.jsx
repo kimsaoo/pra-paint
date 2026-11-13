@@ -4,6 +4,7 @@ import { PaintCap, WishlistToggle, ColorSwatch } from './Common';
 import { updateItem } from '../lib/useCollection';
 import PaintEditModal from './PaintEditModal';
 import NormalizeCleanupModal from './NormalizeCleanupModal';
+import { Palette, Sparkles, SearchX } from 'lucide-react';
 
 export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLinks = [] }) {
   const [filterManufacturer, setFilterManufacturer] = useState('all');
@@ -47,10 +48,10 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
   return (
     <div>
       <div className="flex-between">
-        <div className="section-title">🗄️ 도료 ({paints.length})</div>
+        <div className="section-title"><Palette size={20} className="ico" aria-hidden="true" />도료 ({paints.length})</div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button className="btn sm" onClick={() => setShowCleanup(true)}>
-            🧹 정리
+            <Sparkles size={14} className="ico" aria-hidden="true" />정리
           </button>
           <button className="btn primary sm" onClick={() => setEditingId('new')}>
             + 추가
@@ -118,7 +119,7 @@ export default function AllPaints({ paints, byId, manufacturers = [], kitPaintLi
 
       {filtered.length === 0 && (
         <div className="empty-state">
-          <div className="icon">🗄️</div>
+          <div className="icon"><SearchX size={32} className="ico" aria-hidden="true" /></div>
           조건에 맞는 도료가 없습니다
         </div>
       )}

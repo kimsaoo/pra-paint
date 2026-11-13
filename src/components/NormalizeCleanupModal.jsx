@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { planNormalizationCleanup, applyNormalizationCleanup } from '../lib/normalizeCleanup';
 import { BrandChip } from './Common';
+import { Sparkles } from 'lucide-react';
 
 export default function NormalizeCleanupModal({ paints, kitPaintLinks, onClose }) {
   const plan = useMemo(() => planNormalizationCleanup(paints), [paints]);
@@ -25,7 +26,7 @@ export default function NormalizeCleanupModal({ paints, kitPaintLinks, onClose }
   return (
     <div className="modal-overlay" onClick={() => !applying && onClose()}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">🧹 코드 정규화 / 중복 정리</div>
+        <div className="modal-title"><Sparkles size={18} className="ico" aria-hidden="true" />코드 정규화 / 중복 정리</div>
 
         {done ? (
           <div>

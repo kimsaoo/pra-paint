@@ -1,13 +1,30 @@
 import { useMemo, useState } from 'react';
+import { DndContext, closestCenter, PointerSensor, TouchSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, useSortable, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { writeBatch, doc } from 'firebase/firestore';
+import { db } from '../firebase';
 import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, AcquiredBadge, PaintCap, SimilarTooltip, WishlistToggle, ColorSwatch } from './Common';
 import PaintEditModal from './PaintEditModal';
 import ImagePaintImport from './ImagePaintImport';
 import KitFormModal, { emptyKitForm, newKitForm, kitFormFromKit, kitDataFromForm } from './KitFormModal';
-import { KIT_STATUSES, PRODUCT_TYPES, BUILD_LOCATIONS, normalizeKitStatus } from '../lib/constants';
+import { KIT_STATUSES, PRODUCT_TYPES, BUILD_LOCATIONS, normalizeKitStatus, showsPriority } from '../lib/constants';
 import { getSimilarPaints } from '../lib/matching';
+import { Box, AlertTriangle, MapPin, Pencil, ChevronDown, ChevronUp, X, Camera, Plus, GripVertical } from 'lucide-react';
 
-const STATUS_CLASS = { 제작계획: 'plan', 작업중: 'wip', 제작완료: 'done' };
+const STATUS_CLASS = { 제작계획: 'plan', 작업중: 'wip', 촬영대기: 'photo', 제작완료: 'done' };
+
+/** 드래그로 순서를 바꿀 수 있는 카드 래퍼. 손잡이(우선순위 칸)에만 드래그를 걸어 스크롤, 펼침과 충돌하지 않게 함 */
+function SortableItem({ id, disabled, children }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  const style = { transform: CSS.Translate.toString(transform), transition, zIndex: isDragging ? 5 : undefined, position: 'relative' };
+  return (
+    <div ref={setNodeRef} style={style} className={isDragging ? 'kit-dragging' : ''}>
+      {children({ handleRef: setActivatorNodeRef, handleProps: disabled ? {} : { ...attributes, ...listeners } })}
+    </div>
+  );
+}
 
 export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManufacturers = [], paintManufacturers = [] }) {
   const iconByManufacturer = new Map(paintManufacturers.map((m) => [m.name, m.iconUrl]));
@@ -41,6 +58,15 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
   async function saveKit() {
     if (!kitForm.name.trim() || !kitForm.manufacturer || !kitForm.productType) return;
     const data = kitDataFromForm(kitForm); // scaleCustom 등 UI 상태 제거, 숫자 칸 변환
+    if (data.importCheck?.length && confirm('이 킷의 "확인 필요" 표시도 지울까요?\n(내용을 확인했다면 확인, 나중에 다시 볼 거라면 취소)')) {
+      data.importCheck = [];
+    }
+    if (editingKit === 'new' && data.status === '제작계획' && data.priority == null) {
+      const maxPrio = kits
+        .filter((k) => normalizeKitStatus(k.status) === '제작계획' && typeof k.priority === 'number')
+        .reduce((m, k) => Math.max(m, k.priority), 0);
+      data.priority = maxPrio + 1; // 새 계획 킷은 맨 뒤 순서로
+    }
     if (editingKit === 'new') {
       await addItem('kits', { ...data, order: kits.length });
     } else {
@@ -124,12 +150,48 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
     .filter((k) => !q || [k.name, k.manufacturer, k.genreDetail, k.country].some((v) => String(v || '').toLowerCase().includes(q)))
     .sort(sorters[sortKey]);
 
+  // 드래그 재정렬: "제작계획" + "우선순" 정렬 + 다른 필터 없음일 때만 (일부만 보이는 상태에서 번호를 다시 매기면 꼬이므로)
+  const filtersActive = !!(typeFilter || locFilter || onlyCheck || textFilter.trim());
+  const dragEnabled = statusFilter === '제작계획' && sortKey === 'priority' && !filtersActive;
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const [savingOrder, setSavingOrder] = useState(false);
+
+  async function handleDragEnd({ active, over }) {
+    if (!over || active.id === over.id) return;
+    const ids = sortedKits.map((k) => k.id);
+    const next = arrayMove(ids, ids.indexOf(active.id), ids.indexOf(over.id));
+    // 제작계획 킷 전체에 1부터 다시 번호를 매김 (바뀐 킷만 기록)
+    const batch = writeBatch(db);
+    let changed = 0;
+    next.forEach((id, i) => {
+      const kit = kits.find((k) => k.id === id);
+      if (kit && kit.priority !== i + 1) {
+        batch.update(doc(db, 'kits', id), { priority: i + 1 });
+        changed++;
+      }
+    });
+    if (!changed) return;
+    setSavingOrder(true);
+    try {
+      await batch.commit();
+    } catch (err) {
+      console.error(err);
+      alert('순서 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setSavingOrder(false);
+    }
+  }
+
   return (
     <div>
       <div className="flex-between">
-        <div className="section-title">🏍️ 킷 관리 ({sortedKits.length}/{kits.length})</div>
+        <div className="section-title"><Box size={20} className="ico" aria-hidden="true" />킷 관리 <span className="title-count">{sortedKits.length}/{kits.length}</span></div>
         <button className="btn primary sm" onClick={openNewKit}>
-          + 킷 추가
+          <Plus size={14} className="ico" aria-hidden="true" />킷 추가
         </button>
       </div>
 
@@ -173,13 +235,26 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
         </select>
         {checkCount > 0 && (
           <button className={`filter-chip ${onlyCheck ? 'active' : ''}`} onClick={() => setOnlyCheck(!onlyCheck)}>
-            ⚠ 확인 필요 {checkCount}
+            <AlertTriangle size={13} className="ico" aria-hidden="true" />확인 필요 {checkCount}
           </button>
         )}
       </div>
 
       {sortedKits.length === 0 && <div className="empty-state">조건에 맞는 킷이 없습니다. 필터를 바꾸거나 새 킷을 추가하세요.</div>}
 
+      {statusFilter === '제작계획' && (
+        <div className="drag-hint">
+          <GripVertical size={14} className="ico" aria-hidden="true" />
+          {dragEnabled
+            ? savingOrder
+              ? '순서 저장 중...'
+              : '우선 칸을 끌어서 다음에 만들 순서를 바꿀 수 있습니다. (휴대폰은 길게 누른 뒤 끌기)'
+            : '순서를 바꾸려면 정렬을 "우선순"으로 두고 검색, 장르, 위치, 확인 필요 필터를 해제하세요.'}
+        </div>
+      )}
+
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={sortedKits.map((k) => k.id)} strategy={rectSortingStrategy}>
       <div className="kit-list">
       {sortedKits.map((kit) => {
         const links = linksForKit(kit.id);
@@ -192,12 +267,22 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
           kit.genreDetail || kit.productType,
         ].filter(Boolean);
         return (
-          <div className={`kit-card ${isExpanded ? 'expanded' : ''}`} key={kit.id}>
+          <SortableItem key={kit.id} id={kit.id} disabled={!dragEnabled || st !== '제작계획'}>
+          {({ handleRef, handleProps }) => (
+          <div className={`kit-card ${isExpanded ? 'expanded' : ''}`}>
             <div className="kit-card-main" onClick={() => setExpandedKitId(isExpanded ? null : kit.id)}>
-              <div className={`kit-prio ${typeof kit.priority === 'number' ? '' : 'none'}`} title="우선순위">
-                <small>우선</small>
-                <b>{typeof kit.priority === 'number' ? kit.priority : '-'}</b>
-              </div>
+              {showsPriority(st) && (
+                <div
+                  ref={handleRef}
+                  {...handleProps}
+                  className={`kit-prio ${typeof kit.priority === 'number' ? '' : 'none'} ${dragEnabled && st === '제작계획' ? 'draggable' : ''}`}
+                  title={dragEnabled && st === '제작계획' ? '끌어서 순서 변경' : '다음에 만들 순서'}
+                  onClick={(e) => dragEnabled && e.stopPropagation()}
+                >
+                  {dragEnabled && st === '제작계획' ? <GripVertical size={12} className="ico prio-grip" aria-hidden="true" /> : <small>우선</small>}
+                  <b>{typeof kit.priority === 'number' ? kit.priority : '-'}</b>
+                </div>
+              )}
               <div className="kit-body">
                 <div className="kit-title-row">
                   <div className="kit-title">{kit.name}</div>
@@ -231,17 +316,17 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                   )}
                   {kit.importCheck?.length > 0 && (
                     <span className="status-badge warn" title={kit.importCheck.join('\n')}>
-                      ⚠ 확인 필요
+                      <AlertTriangle size={12} className="ico" aria-hidden="true" />확인 필요
                     </span>
                   )}
-                  {kit.buildLocation && <span>📍 {kit.buildLocation}</span>}
+                  {kit.buildLocation && <span className="kit-loc"><MapPin size={12} className="ico" aria-hidden="true" />{kit.buildLocation}</span>}
                 </div>
               </div>
               <div className="kit-actions">
                 <button className="icon-btn" aria-label="킷 수정" onClick={(e) => { e.stopPropagation(); openEditKit(kit); }}>
-                  ✏️
+                  <Pencil size={16} className="ico" aria-hidden="true" />
                 </button>
-                <span className="icon-btn" aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
+                <span className="icon-btn" aria-hidden="true">{isExpanded ? <ChevronUp size={18} className="ico" /> : <ChevronDown size={18} className="ico" />}</span>
               </div>
             </div>
 
@@ -269,8 +354,8 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                           <WishlistToggle paint={p} onToggle={(paint, v) => updateItem('paints', paint.id, { wishlisted: v })} />
                         )}
                       </div>
-                      <button className="icon-btn" onClick={() => detachLink(link)}>
-                        ✕
+                      <button className="icon-btn" aria-label="연결 해제" onClick={() => detachLink(link)}>
+                        <X size={16} className="ico" aria-hidden="true" />
                       </button>
                     </div>
                   );
@@ -327,17 +412,21 @@ export default function KitManager({ kits, kitPaintLinks, paints, byId, kitManuf
                       새 도료 만들기
                     </button>
                     <button className="btn sm" onClick={() => setAddMode('image')}>
-                      📷 이미지로 등록
+                      <Camera size={14} className="ico" aria-hidden="true" />이미지로 등록
                     </button>
                   </div>
                 )}
               </div>
             )}
           </div>
+          )}
+          </SortableItem>
         );
       })}
 
       </div>
+      </SortableContext>
+      </DndContext>
 
       {editingPaint && (
         <PaintEditModal

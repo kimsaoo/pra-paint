@@ -4,6 +4,7 @@ import { extractPaintsFromImage } from '../lib/gemini';
 import { PAINT_TYPES } from '../lib/constants';
 import { guessTamiyaPaintType, normalizeCodeForManufacturer } from '../lib/normalize';
 import { addItem } from '../lib/useCollection';
+import { Camera, Image, ClipboardPaste } from 'lucide-react';
 
 function guessType(manufacturer, code) {
   if (manufacturer === 'Tamiya') return guessTamiyaPaintType(code);
@@ -146,15 +147,15 @@ export default function ImagePaintImport({ paints, manufacturers = [], onCancel,
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
             <label className="btn sm" style={{ cursor: 'pointer' }}>
-              📷 사진 촬영
+              <Camera size={14} className="ico" aria-hidden="true" />사진 촬영
               <input type="file" accept="image/*" capture="environment" onChange={handleFileInput} style={{ display: 'none' }} />
             </label>
             <label className="btn sm" style={{ cursor: 'pointer' }}>
-              🖼️ 앨범에서 선택
+              <Image size={14} className="ico" aria-hidden="true" />앨범에서 선택
               <input type="file" accept="image/*" onChange={handleFileInput} style={{ display: 'none' }} />
             </label>
             <button className="btn sm" onClick={pasteFromClipboardButton}>
-              📋 클립보드에서 붙여넣기
+              <ClipboardPaste size={14} className="ico" aria-hidden="true" />클립보드에서 붙여넣기
             </button>
           </div>
 

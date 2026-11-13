@@ -5,6 +5,7 @@ import { addItem, updateItem, deleteItem } from '../lib/useCollection';
 import { linkSimilarPaints, unlinkSimilarPaints, setSimilarVerified } from '../lib/paintLinks';
 import { getSimilarPaints, findSimilarCandidates } from '../lib/matching';
 import { normalizeCodeForManufacturer } from '../lib/normalize';
+import { X } from 'lucide-react';
 
 /**
  * paint: null(신규) | 기존 paint 객체
@@ -143,7 +144,7 @@ export default function PaintEditModal({ paint, forceOwned, allPaints, byId, man
 
         {autoCandidates.length > 0 && (
           <div className="field-group">
-            <label>🎨 색상명 기반 유사도료 추천 (선택해서 연결)</label>
+            <label>색상명 기반 유사도료 추천 (선택해서 연결)</label>
             {autoCandidates.map((c) => (
               <div className="flex-between mt-4" key={c.id}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
@@ -188,8 +189,8 @@ export default function PaintEditModal({ paint, forceOwned, allPaints, byId, man
                       미검증표시
                     </button>
                   )}
-                  <button className="icon-btn" onClick={() => unlinkSimilarPaints(paint, s)}>
-                    ✕
+                  <button className="icon-btn" aria-label="연결 해제" onClick={() => unlinkSimilarPaints(paint, s)}>
+                    <X size={16} className="ico" aria-hidden="true" />
                   </button>
                 </div>
               </div>

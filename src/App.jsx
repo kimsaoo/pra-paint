@@ -10,13 +10,25 @@ import AllPaints from './components/AllPaints';
 import KitManager from './components/KitManager';
 import Wishlist from './components/Wishlist';
 import ManufacturerManager from './components/ManufacturerManager';
+import { Palette, ShoppingBag, Box, Factory, Database } from 'lucide-react';
 
 const TABS = [
-  { key: 'all', label: '도료', icon: '🗄️' },
-  { key: 'wishlist', label: '위시리스트', icon: '🛒' },
-  { key: 'kits', label: '킷', icon: '🏍️' },
-  { key: 'manufacturers', label: '제조사', icon: '🏷️' },
+  { key: 'all', label: '도료', Icon: Palette },
+  { key: 'wishlist', label: '위시리스트', Icon: ShoppingBag },
+  { key: 'kits', label: '킷', Icon: Box },
+  { key: 'manufacturers', label: '제조사', Icon: Factory },
 ];
+
+/** 앱 마크: 도료병 실루엣 (자체 제작 도형) */
+function BrandMark({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className="brand-mark">
+      <rect x="9" y="3" width="14" height="7" rx="2" fill="var(--text)" />
+      <rect x="6" y="11" width="20" height="18" rx="4" fill="var(--tamiya)" />
+      <rect x="10" y="16" width="12" height="7" rx="1.5" fill="var(--surface)" opacity="0.9" />
+    </svg>
+  );
+}
 
 export default function App() {
   const [authReady, setAuthReady] = useState(false);
@@ -36,6 +48,14 @@ export default function App() {
   const { data: kitManufacturers, loading: kmLoading } = useCollection('kitManufacturers', authReady);
 
   const byId = useMemo(() => paintsById(paints), [paints]);
+
+  const ownedCount = paints.filter((p) => p.owned).length;
+  const navCounts = {
+    all: paints.length,
+    wishlist: paints.filter((p) => p.wishlisted).length,
+    kits: kits.length,
+    manufacturers: paintManufacturers.length + kitManufacturers.length,
+  };
 
   const loading = !authReady || kitsLoading || paintsLoading || linksLoading || pmLoading || kmLoading;
   const isEmpty = authReady && !loading && paints.length === 0;
@@ -77,7 +97,7 @@ export default function App() {
   if (isEmpty) {
     return (
       <div className="loading-screen" style={{ padding: 24, textAlign: 'center' }}>
-        <div style={{ fontSize: 40 }}>🎨</div>
+        <Database size={40} className="ico" aria-hidden="true" />
         <div className="font-display" style={{ fontSize: 18 }}>
           빈 데이터베이스입니다
         </div>
@@ -94,13 +114,13 @@ export default function App() {
   return (
     <>
       <header className="app-header">
-        <h1 className="font-display">
-          <span className="paint-cap" style={{ background: 'var(--tamiya)' }} />
-          프라 도료 관리
-        </h1>
-        <p className="subtitle">
-          도료 {paints.length} (보유 {paints.filter((p) => p.owned).length}) · 킷 {kits.length}
-        </p>
+        <BrandMark size={26} />
+        <div>
+          <h1>Next Build</h1>
+          <p className="subtitle">
+            도료 {paints.length} (보유 {ownedCount}), 킷 {kits.length}
+          </p>
+        </div>
       </header>
 
       <main className="app-main">
@@ -130,17 +150,29 @@ export default function App() {
         )}
       </main>
 
-      <nav className="tab-bar">
-        {TABS.map((t) => (
+      <nav className="tab-bar" aria-label="주 메뉴">
+        <div className="nav-brand">
+          <BrandMark size={30} />
+          <div>
+            <div className="nav-brand-name">Next Build</div>
+            <div className="nav-brand-sub">What to build, what to buy</div>
+          </div>
+        </div>
+        {TABS.map(({ key, label, Icon }) => (
           <button
-            key={t.key}
-            className={`tab-btn ${tab === t.key ? 'active' : ''}`}
-            onClick={() => setTab(t.key)}
+            key={key}
+            className={`tab-btn ${tab === key ? 'active' : ''}`}
+            aria-current={tab === key ? 'page' : undefined}
+            onClick={() => setTab(key)}
           >
-            <span className="tab-icon">{t.icon}</span>
-            {t.label}
+            <Icon size={20} strokeWidth={tab === key ? 2.2 : 1.8} className="tab-icon" aria-hidden="true" />
+            <span className="tab-label">{label}</span>
+            {navCounts[key] != null && <span className="nav-count">{navCounts[key]}</span>}
           </button>
         ))}
+        <div className="nav-foot">
+          보유 도료 {ownedCount} / 전체 {paints.length}
+        </div>
       </nav>
     </>
   );

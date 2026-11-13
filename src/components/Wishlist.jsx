@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { getSimilarPaints } from '../lib/matching';
 import { updateItem } from '../lib/useCollection';
 import { BrandChip, OwnedBadge, PaintCap, ColorSwatch } from './Common';
+import { ShoppingBag } from 'lucide-react';
 
 export default function Wishlist({ paints, kitPaintLinks, kits, byId, manufacturers = [] }) {
   const items = useMemo(() => paints.filter((p) => p.wishlisted), [paints]);
@@ -20,14 +21,14 @@ export default function Wishlist({ paints, kitPaintLinks, kits, byId, manufactur
 
   return (
     <div>
-      <div className="section-title">🛒 위시리스트 ({items.length})</div>
+      <div className="section-title"><ShoppingBag size={20} className="ico" aria-hidden="true" />위시리스트 ({items.length})</div>
       <p className="text-faint" style={{ marginBottom: 14 }}>
-        "전체도료"나 "킷" 화면에서 🛒 담기 버튼을 누르면 여기 모입니다. 산 도료는 빼주세요.
+        "전체도료"나 "킷" 화면에서 담기 버튼을 누르면 여기 모입니다. 산 도료는 빼주세요.
       </p>
 
       {items.length === 0 && (
         <div className="empty-state">
-          <div className="icon">🛒</div>
+          <div className="icon"><ShoppingBag size={32} className="ico" aria-hidden="true" /></div>
           아직 담은 도료가 없습니다
           <div className="text-faint mt-8">"전체도료" 화면에서 도료를 열어 담아보세요</div>
         </div>

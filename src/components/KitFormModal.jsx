@@ -9,8 +9,10 @@ import {
   KIT_STATUSES,
   FIGURE_STATUSES,
   normalizeKitStatus,
+  showsPriority,
 } from '../lib/constants';
 import { searchKitDimensions, searchKitInfo } from '../lib/gemini';
+import { AlertTriangle, Search, Ruler } from 'lucide-react';
 
 function todayDot() {
   const d = new Date();
@@ -266,7 +268,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
 
         {form.importCheck?.length > 0 && (
           <div className="notice-warn">
-            <div style={{ fontWeight: 600 }}>⚠ 시트 이관 확인 필요</div>
+            <div style={{ fontWeight: 600 }}><AlertTriangle size={14} className="ico" aria-hidden="true" />시트 이관 확인 필요</div>
             <ul style={{ margin: '6px 0', paddingLeft: 18, fontSize: 12 }}>
               {form.importCheck.map((c) => (
                 <li key={c}>{c}</li>
@@ -284,7 +286,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
               </details>
             )}
             <button className="btn sm mt-4" onClick={() => set({ importCheck: [] })}>
-              확인 완료로 표시 (저장 시 반영)
+              확인 완료로 표시
             </button>
           </div>
         )}
@@ -308,7 +310,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
           )}
 
           <div className="field-group span-2 lookup-box">
-            <label>🔎 품번 또는 품명으로 키트 정보 검색</label>
+            <label><Search size={14} className="ico" aria-hidden="true" />품번 또는 품명으로 키트 정보 검색</label>
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 style={{ flex: 1 }}
@@ -317,7 +319,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
                 placeholder={form.name || '예: 35165 또는 1/35 Tiger I Early'}
               />
               <button className="btn sm primary" onClick={autoFillInfo} disabled={infoLoading}>
-                {infoLoading ? '검색 중...' : '🔎 자동입력'}
+                {infoLoading ? '검색 중...' : '자동입력'}
               </button>
             </div>
             <div className="text-faint mt-4">제조사를 먼저 고르면 더 정확합니다. 비어 있는 칸만 채우고, 입력한 값은 바꾸지 않습니다. 크기는 킷 정보에 없으면 실물 크기를 스케일로 환산해 채웁니다.</div>
@@ -454,7 +456,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
               <input value={form.dimensions.height} onChange={(e) => setDim('height', e.target.value)} placeholder="높이" inputMode="decimal" />
             </div>
             <button className="btn sm" onClick={autoFillDimensions} disabled={dimLoading}>
-              {dimLoading ? '크기 조사 중...' : '📏 크기 자동 입력'}
+              {dimLoading ? '크기 조사 중...' : <><Ruler size={14} className="ico" aria-hidden="true" />크기 자동 입력</>}
             </button>
             <div className="text-faint mt-4">
               킷 상품정보의 완성 크기를 먼저 찾고, 없으면 실물 크기를 찾아 스케일로 나눠 계산합니다. 스케일을 먼저 입력하세요.
@@ -482,10 +484,12 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
             <label>구매일</label>
             <input value={form.purchaseDate} onChange={(e) => set({ purchaseDate: e.target.value })} placeholder="YYYY.MM.DD" />
           </div>
-          <div className="field-group">
-            <label>우선</label>
-            <input value={form.priority} onChange={(e) => set({ priority: e.target.value })} inputMode="numeric" />
-          </div>
+          {showsPriority(form.status) && (
+            <div className="field-group">
+              <label>우선 (다음에 만들 순서)</label>
+              <input value={form.priority} onChange={(e) => set({ priority: e.target.value })} inputMode="numeric" />
+            </div>
+          )}
           <div className="field-group">
             <label>난이도</label>
             <input value={form.difficulty} onChange={(e) => set({ difficulty: e.target.value })} inputMode="numeric" />

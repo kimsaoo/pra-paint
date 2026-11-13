@@ -4,6 +4,7 @@ import { RECOMMENDED_PAINT_MANUFACTURERS, RECOMMENDED_KIT_MANUFACTURERS } from '
 import { updateItem } from '../lib/useCollection';
 import { fileToIconDataUrl } from '../lib/imageUtils';
 import { PaintCap } from './Common';
+import { Factory, ImagePlus, ImageOff, Pencil, Trash2 } from 'lucide-react';
 
 export default function ManufacturerManager({ paintManufacturers, kitManufacturers, paints, kits }) {
   const [tab, setTab] = useState('paint'); // 'paint' | 'kit'
@@ -90,7 +91,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
 
   return (
     <div>
-      <div className="section-title">🏷️ 제조사 관리</div>
+      <div className="section-title"><Factory size={20} className="ico" aria-hidden="true" />제조사 관리</div>
 
       <div className="filter-row">
         <button className={`filter-chip ${tab === 'paint' ? 'active' : ''}`} onClick={() => setTab('paint')}>
@@ -155,7 +156,7 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
                   <div className="paint-kits">{usageOf(m.name)}개 사용 중</div>
                 </div>
                 <label className="icon-btn" style={{ cursor: 'pointer' }} title="아이콘 이미지 등록">
-                  🖼️
+                  <ImagePlus size={16} className="ico" aria-hidden="true" />
                   <input
                     type="file"
                     accept="image/*"
@@ -165,14 +166,14 @@ export default function ManufacturerManager({ paintManufacturers, kitManufacture
                 </label>
                 {m.iconUrl && (
                   <button className="icon-btn" onClick={() => removeIcon(m)} title="아이콘 제거">
-                    🚫
+                    <ImageOff size={16} className="ico" aria-hidden="true" />
                   </button>
                 )}
                 <button className="icon-btn" onClick={() => startEdit(m)}>
-                  ✏️
+                  <Pencil size={16} className="ico" aria-hidden="true" />
                 </button>
                 <button className="icon-btn" onClick={() => remove(m)}>
-                  🗑️
+                  <Trash2 size={16} className="ico" aria-hidden="true" />
                 </button>
               </>
             )}

@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: '프라 도료 관리',
-        short_name: '도료관리',
-        description: '프라모델 도료 재고 및 매칭 관리',
+        name: 'Next Build',
+        short_name: 'Next Build',
+        description: '프라모델 킷 제작 계획과 도료 재고 관리',
         theme_color: '#16181B',
         background_color: '#16181B',
         display: 'standalone',

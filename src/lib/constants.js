@@ -44,7 +44,9 @@ export const DEFAULT_SCALE_BY_TYPE = { AFV: '1/35', AUTO: '1/24', BIKE: '1/12', 
 
 export const SIZE_CLASSES = ['대', '중', '소'];
 export const BUILD_LOCATIONS = ['집', '본가'];
-export const KIT_STATUSES = ['제작계획', '작업중', '제작완료'];
+export const KIT_STATUSES = ['제작계획', '작업중', '촬영대기', '제작완료'];
+// 우선순위(다음에 만들 순서)를 보여주는 상태. 제작완료는 의미가 없어 숨김 (값은 지우지 않음)
+export const showsPriority = (status) => status !== '제작완료';
 // 이전 상태값 호환 (이관 스크립트가 DB도 변환하지만, 화면에서도 안전하게 읽기)
 export const LEGACY_KIT_STATUS = { 대기: '제작계획', 완료: '제작완료' };
 export const normalizeKitStatus = (s) => LEGACY_KIT_STATUS[s] || s || '제작계획';
