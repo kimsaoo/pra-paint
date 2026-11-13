@@ -165,7 +165,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
     setInfoLoading(true);
     setInfoResult(null);
     try {
-      const { fields: r, sources } = await searchKitInfo(form.manufacturer, q);
+      const { fields: r, sources, scalematesHits } = await searchKitInfo(form.manufacturer, q);
       const filled = [];
       const kept = [];
       const notes = [];
@@ -230,6 +230,7 @@ export default function KitFormModal({ form, setForm, kitManufacturers, kits = [
       }
       patch.dimensions = dims;
       if (r.note) notes.push(r.note);
+      if (scalematesHits === 0) notes.push('Scalemates에서는 찾지 못해 일반 웹 결과만 사용했습니다. 영문 품명이나 다른 품번 표기로 다시 시도해 보세요.');
 
       setForm((f) => ({ ...f, ...patch }));
       setAutoFields(newAuto);

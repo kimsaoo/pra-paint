@@ -23,7 +23,7 @@ const TAVILY_URL = 'https://api.tavily.com/search';
 export const usingTavily = () => !!import.meta.env.VITE_TAVILY_API_KEY;
 
 /** Tavily 검색. 반환: [{ title, url, content }] */
-export async function tavilySearch(query, { maxResults = 5 } = {}) {
+export async function tavilySearch(query, { maxResults = 5, includeDomains } = {}) {
   const key = import.meta.env.VITE_TAVILY_API_KEY;
   if (!key) throw new Error('Tavily API 키가 설정되지 않았습니다. .env와 GitHub Secrets의 VITE_TAVILY_API_KEY를 확인해주세요.');
   let res;
@@ -37,6 +37,7 @@ export async function tavilySearch(query, { maxResults = 5 } = {}) {
         max_results: maxResults,
         include_answer: false,
         include_raw_content: true, // 짧은 요약만으로는 정보가 빠지는 경우가 많아 본문 포함
+        ...(includeDomains ? { include_domains: includeDomains } : {}),
       }),
     });
   } catch (err) {
@@ -68,7 +69,12 @@ export async function tavilySearch(query, { maxResults = 5 } = {}) {
 /** 검색 결과를 Gemini에 넘길 텍스트로 변환 */
 function resultsToContext(results) {
   return results
-    .map((r, i) => `[${i + 1}] ${r.title}\nURL: ${r.url}\n요약: ${r.content.slice(0, 800)}\n본문: ${r.raw.slice(0, 3500)}`)
+    .map((r, i) => {
+      // Scalemates 페이지는 앞부분이 메뉴라 "Facts" 구역부터 보내고 더 길게 포함
+      const isSm = /scalemates\.com/.test(r.url);
+      const raw = isSm && r.raw.includes('Facts') ? r.raw.slice(r.raw.indexOf('Facts')) : r.raw;
+      return `[${i + 1}] ${r.title}\nURL: ${r.url}\n요약: ${r.content.slice(0, 800)}\n본문: ${raw.slice(0, isSm ? 6000 : 3500)}`;
+    })
     .join('\n\n');
 }
 
@@ -118,8 +124,15 @@ export async function searchKitInfo(manufacturer, query) {
   if (!usingTavily()) return searchKitInfoGrounded(manufacturer, query);
   if (!query?.trim()) throw new Error('품번 또는 품명을 먼저 입력해주세요.');
 
-  const results = await tavilySearch(`scalemates ${manufacturer || ''} ${query} model kit`.trim(), { maxResults: 6 });
-  if (results.length === 0) throw new Error('검색 결과가 없습니다. 품번이나 품명을 바꿔서 다시 시도해주세요.');
+  // ① Scalemates 안에서만 검색 ② 일반 웹(제조사, 판매처) 검색 → 합쳐서 Scalemates 결과를 앞에 둠 (2 크레딧)
+  const q = `${manufacturer || ''} ${query}`.replace(/\s+/g, ' ').trim();
+  const [sm, web] = await Promise.all([
+    tavilySearch(q, { maxResults: 3, includeDomains: ['scalemates.com'] }),
+    tavilySearch(`${q} model kit`, { maxResults: 4 }),
+  ]);
+  const seen = new Set();
+  const results = [...sm, ...web].filter((r) => (seen.has(r.url) ? false : seen.add(r.url)));
+  if (results.length === 0) throw new Error('검색 결과가 없습니다. 품번이나 영문 품명을 바꿔서 다시 시도해주세요.');
 
   const fields = await extractJson(`프라모델 키트 "${manufacturer || ''} ${query}"의 정보를 정리해줘.
 ${RULE}
@@ -143,7 +156,7 @@ dimensions는 완성 크기(mm)가 검색 결과에 명시된 경우에만 채�
 [검색 결과]
 ${resultsToContext(results)}`);
 
-  return { fields, sources: results.slice(0, 5).map((r) => ({ title: r.title, uri: r.url })) };
+  return { fields, sources: results.slice(0, 5).map((r) => ({ title: r.title, uri: r.url })), scalematesHits: sm.length };
 }
 
 /**
