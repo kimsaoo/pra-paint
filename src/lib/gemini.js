@@ -1,20 +1,49 @@
 const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 const SEARCH_MODEL = 'gemini-3.5-flash'; // 구글 검색 그라운딩은 flash-lite보다 flash 계열에서 안정적으로 지원됨
 
-/**
- * 429(RESOURCE_EXHAUSTED) 응답을 사용자가 이해하기 쉬운 메시지로 변환.
- * 무료 티어는 RPM(분당 요청수)·RPD(일일 요청수) 두 가지 한도가 있는데, 에러 바디의
- * quotaId/문구로 어느 쪽인지 대략 구분해서 안내한다. 구분이 안 되면 RPM 쪽(재시도로 해결 가능)으로 가정.
- */
-function buildQuotaErrorMessage(errText, modelName) {
-  const isDailyQuota = /PerDay|RPD|daily/i.test(errText);
-  if (isDailyQuota) {
-    return `Gemini API 일일 무료 할당량을 초과했습니다 (${modelName}). 무료 티어는 하루 요청 수 제한이 있어 태평양시간 자정에 초기화됩니다. 오늘은 이 기능 대신 직접 입력해주시고, 자주 한도에 걸리면 Google AI Studio에서 결제(유료 티어) 등록을 검토해보세요.`;
+/** 429 응답 본문에서 한도 위반 정보를 꺼냄 (quotaMetric, quotaId, quotaValue) */
+function parseQuotaViolations(errText) {
+  try {
+    const j = JSON.parse(errText);
+    return (j.error?.details || []).flatMap((d) => d.violations || []);
+  } catch {
+    return [];
   }
-  return `Gemini API 요청이 너무 잦아 잠시 제한되었습니다 (${modelName}, 분당 요청 한도). 30초~1분 정도 기다린 뒤 다시 시도해주세요.`;
 }
 
-/** 429 오류에 한해, 짧게 한 번만 재시도 (분당 한도는 수십 초 내 풀리는 경우가 많음) */
+/**
+ * 429(RESOURCE_EXHAUSTED) 원인 분류
+ * - unsupported: 한도가 0 = 현재 등급(무료)에서 쓸 수 없는 기능. 대표적으로 Gemini 3.x의 Google 검색 기반 조회
+ * - daily: 일일 한도 초과
+ * - minute: 분당 한도 초과 (잠시 후 재시도로 해결)
+ * - unknown: 판별 불가
+ */
+function classifyQuotaError(errText) {
+  const v = parseQuotaViolations(errText);
+  const blob = `${errText} ${JSON.stringify(v)}`;
+  if (/limit:\s*0\b/i.test(blob) || v.some((x) => String(x.quotaValue) === '0')) return 'unsupported';
+  if (/PerDay|RPD|daily/i.test(blob)) return 'daily';
+  if (/PerMinute|RPM|minute/i.test(blob)) return 'minute';
+  return 'unknown';
+}
+
+function buildQuotaErrorMessage(errText, modelName, { grounding = false } = {}) {
+  console.error(`[Gemini 429] ${modelName}${grounding ? ' (검색 기반 조회)' : ''}`, errText);
+  const kind = classifyQuotaError(errText);
+  const tail = ' (원문은 F12 개발자도구 Console에서 확인할 수 있습니다)';
+  if (kind === 'unsupported' || (grounding && kind === 'unknown')) {
+    return `현재 Gemini API 키의 등급에서는 ${grounding ? 'Google 검색 기반 조회를' : '이 기능을'} 사용할 수 없습니다 (${modelName}, 허용 한도 0). 무료 등급에서는 Gemini 3 계열의 검색 기반 조회가 제공되지 않는 것으로 보입니다. Google AI Studio에서 결제를 연결하거나, 검색 없이 직접 입력해주세요.${tail}`;
+  }
+  if (kind === 'daily') {
+    return `Gemini API 일일 무료 할당량을 초과했습니다 (${modelName}). 태평양시간 자정(한국시간 오후 4~5시)에 초기화됩니다. 오늘은 직접 입력해주세요.${tail}`;
+  }
+  if (kind === 'minute') {
+    return `Gemini API 요청이 너무 잦아 잠시 제한되었습니다 (${modelName}, 분당 요청 한도). 30초~1분 정도 기다린 뒤 다시 시도해주세요.${tail}`;
+  }
+  return `Gemini API 사용 한도에 걸렸습니다 (${modelName}). 잠시 후 다시 시도하고, 계속되면 Google AI Studio의 사용량 화면을 확인해주세요.${tail}`;
+}
+
+/** 429 오류 중 분당 한도일 때만 한 번 재시도 (한도 0이나 일일 한도는 재시도해도 소용없으므로 바로 반환) */
 async function fetchWithRetry(url, body, { retryDelayMs = 4000 } = {}) {
   const doFetch = () =>
     fetch(url, {
@@ -25,6 +54,8 @@ async function fetchWithRetry(url, body, { retryDelayMs = 4000 } = {}) {
 
   let res = await doFetch();
   if (res.status === 429) {
+    const text = await res.text().catch(() => '');
+    if (classifyQuotaError(text) !== 'minute') return new Response(text, { status: 429 });
     await new Promise((r) => setTimeout(r, retryDelayMs));
     res = await doFetch();
   }
@@ -125,7 +156,7 @@ export async function searchKitDimensions(manufacturer, kitName, scale) {
   const res = await fetchWithRetry(url, body);
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, SEARCH_MODEL));
+    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, SEARCH_MODEL, { grounding: true }));
     throw new Error(`Gemini API 오류 (${res.status}): ${errText.slice(0, 200)}`);
   }
   const data = await res.json();
@@ -216,7 +247,7 @@ dimensions는 완성 크기(mm)가 검색 결과에 명시된 경우에만 채�
   const res = await fetchWithRetry(url, body);
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, SEARCH_MODEL));
+    if (res.status === 429) throw new Error(buildQuotaErrorMessage(errText, SEARCH_MODEL, { grounding: true }));
     throw new Error(`Gemini API 오류 (${res.status}): ${errText.slice(0, 200)}`);
   }
   const data = await res.json();
